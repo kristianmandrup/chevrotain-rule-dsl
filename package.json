@@ -1,0 +1,23 @@
+{
+  "name": "chevrotain-rule-dsl",
+  "version": "1.0.0",
+  "description": "Chevrotain parser rule DSL",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kristianmandrup/chevrotain-rule-dsl"
+  },
+  "keywords": [
+    "chevrotain",
+    "rule",
+    "parser"
+  ],
+  "author": "Kristian Mandrup <kmandrup@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "chevrotain": "^0.27.3"
+  }
+}

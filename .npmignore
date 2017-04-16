@@ -1,0 +1,14 @@
+.vscode
+test
+*.test.js
+*.ts
+*.html
+css
+gulpfile
+.babelrc
+examples
+docs
+tsconfig.json
+*.log
+node_modules
+yarn.lock
