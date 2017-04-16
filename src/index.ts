@@ -153,6 +153,10 @@ export class RuleParser {
     let alt = isAlt(options)
     let codeJoin = alt ? ',' : '\n'
     let parser = alt ? 'alt' : 'parse'
+    // reset options if parent is 'or'
+    if (alt) {
+      options = {}
+    }
     this.log('item parser', parser, options)
     rules = rules.reduce(flat, [])
     let parsedRules = rules.map(rule => this[parser](rule, options))
