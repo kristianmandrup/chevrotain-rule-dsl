@@ -12,24 +12,50 @@ function codeOf(value) {
   return typeof value === 'function' ? value.name : new String(value)
 }
 
+function isAlt(value) {
+  return value && value.parent === 'or'
+}
+
+function toTokenMap(value) {
+  if (Array.isArray(value)) {
+    return value.reduce((acc, item) => {
+      let name = typeof item === 'function' ? item.name : new String(item)
+      acc[name] = item
+    }, {})
+  }
+  if (typeof value === 'object') return value
+  throw new Error(`Invalid tokenMap ${value}`)
+}
+
 export class RuleParser {
   static registry = {}
   usedRules = {}
   _registry = {}
   code = []
+  tokenMap = {}
   public codeStr: string
   logging: boolean
+  logRule: boolean
   $: any
 
-  constructor(parser, options = { logging: false, registry: null }) {
-    if (!(parser instanceof Parser)) {
+  constructor(parser, options = { logging: false, registry: null, tokensMap: {} }) {
+    if (!(parser && parser.RULE)) {
       console.error('parser', parser)
       throw new Error('RuleParser must be created with a Parser instance')
     }
     this.$ = parser
+    this.tokenMap = toTokenMap(parser['tokensMap'] || options.tokensMap)
     this.usedRules = {}
     this.logging = options.logging
     this._registry = parser['registry'] || options.registry || RuleParser.registry
+  }
+
+  findToken(value) {
+    return this.tokenMap[value] || this.tokenMap[value.name]
+  }
+
+  resolveToken(token) {
+    return this.findToken(token) || token
   }
 
   parse(rule, options = {}): IResult {
@@ -38,9 +64,10 @@ export class RuleParser {
     if (Array.isArray(rule)) {
       return this.parseList(rule, options)
     }
-    if (rule.prototype instanceof Token) {
+
+    if (this.findToken(rule)) {
       this.log('consume since rule is token', rule)
-      return this.consume(rule)
+      return this.consume(rule, options)
     }
 
     if (typeof rule === 'object') {
@@ -48,7 +75,29 @@ export class RuleParser {
     }
     // if string, always assume subrule
     if (typeof rule === 'string') {
-      return this.subrule(rule)
+      // two or more word with spaces between?
+      if (/\S+\s+\S+/.test(rule)) {
+
+        // or rule
+        let orExp = /\sor\s/
+        let pipeExp = /\|/
+
+        let or = orExp.test(rule)
+        let orPipe = pipeExp.test(rule)
+        // if separator is either 'or' OR '|'
+        if (or || orPipe) {
+          let splitExp = or ? orExp : pipeExp
+          this.log('or rule: split', splitExp)
+          let alternatives = rule.split(splitExp).map(alt => alt.trim())
+          return this.or(alternatives)
+        } else {
+          this.log('split rules')
+          let list = rule.split(/\s+/).map(item => item.trim())
+          return this.parseList(list, options)
+        }
+      }
+
+      return this.findToken(rule) ? this.consume(rule, options) : this.subrule(rule, options)
     }
     if (typeof rule === 'function') {
       return { rule, code: rule.name }
@@ -58,8 +107,11 @@ export class RuleParser {
 
   protected parseList(rules, options = {}): IResult {
     this.log('parseList', rules, options)
-    let parsedRules = rules.map(rule => this.parse(rule, options))
-    let codeStmts = parsedRules.map(pr => pr.code).join('\n')
+    let alt = isAlt(options)
+    let codeJoin = alt ? ',' : '\n'
+    let parser = alt ? 'alt' : 'parse'
+    let parsedRules = rules.map(rule => this[parser](rule, options))
+    let codeStmts = parsedRules.map(pr => pr.code).join(codeJoin)
 
     this.log('parsedRules', parsedRules)
     this.log('codeStmts', codeStmts)
@@ -67,7 +119,7 @@ export class RuleParser {
       parsedRules.map(pr => pr.rule())
     }
     this.log('rule', rule)
-    let code = '() => {\n' + codeStmts + '\n}\n'
+    let code = alt ? codeStmts : '() => {\n' + codeStmts + '\n}\n'
     let result = {
       rule,
       code
@@ -81,9 +133,6 @@ export class RuleParser {
 
     function isRepeat(value) {
       return value.repeat || value.sep || value.min || value.def
-    }
-    function isAlt(value) {
-      return value && value.parent === 'or'
     }
 
     if (isAlt(options)) {
@@ -117,8 +166,12 @@ export class RuleParser {
     }
   }
 
+  get islogging() {
+    return this.logging || this.logRule
+  }
+
   log(msg, ...args) {
-    if (this.logging) {
+    if (this.islogging) {
       console.log(msg, ...args)
     }
   }
@@ -139,7 +192,8 @@ export class RuleParser {
     this.code.push(ruleCode)
   }
 
-  subrule(value, fun = 'SUBRULE') {
+  subrule(value, options = {}) {
+    let fun = 'SUBRULE'
     this.log('subrule', value)
     let _rule = (typeof value === 'string') ? this.findRule(value) : value
     if (typeof _rule !== 'function') {
@@ -158,11 +212,12 @@ export class RuleParser {
   }
 
   // must be a Token
-  protected consume(value): IResult {
+  protected consume(value, options = {}): IResult {
     this.log('consume', value)
-    let code = '$.CONSUME(' + codeOf(value) + ')'
+    let token = this.resolveToken(value)
+    let code = '$.CONSUME(' + codeOf(token) + ')'
     let $ = this.$
-    let rule = () => $.CONSUME(value).bind($)
+    let rule = () => $.CONSUME(token).bind($)
     let result = { rule, code }
     this.log('consumed', result)
     return result
@@ -171,7 +226,7 @@ export class RuleParser {
   protected alt(value): IResult {
     this.log('alt', value)
     let parsedRule = this.parse(value)
-    let code = '{ALT: ' + parsedRule.code + '}'
+    let code = '{ALT: () => {\n ' + parsedRule.code + '\n}}'
     let rule = { ALT: parsedRule.rule }
     return { rule, code }
   }
@@ -209,7 +264,7 @@ export class RuleParser {
 
   protected or(alternatives): IResult {
     this.log('or', alternatives)
-    let parsed = this.parseList(alternatives, { parent: 'or' })
+    let parsed = this.parse(alternatives, { parent: 'or' })
     let code = '$.OR([' + parsed.code + '])'
     let rule = () => this.$.OR(parsed.rule)
     return { rule, code }
@@ -240,6 +295,7 @@ export class RuleParser {
 
   public createRule(name: string, rules, options): Function {
     options = options || {}
+    this.logRule = options.logging
     let parsed = this.parse(rules, options)
     this.log('createRule: parsedRule', parsed.rule)
     options.code = options.code || parsed.code
