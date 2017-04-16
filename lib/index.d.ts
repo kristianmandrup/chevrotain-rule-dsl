@@ -20,6 +20,9 @@ export declare class RuleParser {
     findToken(value: any): any;
     resolveToken(token: any): any;
     parse(rule: any, options?: {}): IResult;
+    parseRepeat(rule: any, options: any): IResult;
+    parseOption(rule: any, options: any): IResult;
+    parseSpaced(rule: any, options: any): IResult;
     protected parseString(rule: any, options?: any): IResult;
     protected parseWord(rule: any, options?: any): IResult;
     protected parseList(rules: any, options?: any): IResult;

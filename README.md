@@ -107,7 +107,23 @@ export class SelectParser extends Parser {
 
 More (experimental) convenience string parsers...
 
-### Better Repeat/Many expression
+### Option expression
+
+Traditional Option rule API:
+
+```js
+this.OPTION(() => {
+  this.CONSUME(Identifier)
+  this.CONSUME(Colon)
+  this.CONSUME(Type)
+})
+```
+
+Can now be expressed using `?` in RegExp like pattern `(...)?`
+
+`(id : type)?`
+
+### Repeat/Many expression
 
 The following is a bit cumbersome
 

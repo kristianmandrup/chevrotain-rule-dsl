@@ -84,9 +84,8 @@ export class RuleParser {
     throw new Error(`Invalid rule(s) ${typeof rule}`)
   }
 
-  // TODO: extract to separate class
-  protected parseString(rule, options?): IResult {
-    this.log('parseString', rule)
+  parseRepeat(rule, options): IResult {
+    // repeat
     const regExp = /\(([^)]+)\)([+\*])/;
     let matches = regExp.exec(rule)
     if (matches && matches.length > 0) {
@@ -100,7 +99,17 @@ export class RuleParser {
         def: words.join(' ')
       })
     }
+  }
 
+  parseOption(rule, options): IResult {
+    const regExp = /\(([^)]+)\)(\?)/;
+    let matches = regExp.exec(rule)
+    if (matches && matches.length > 0) {
+      return this.option(matches[1])
+    }
+  }
+
+  parseSpaced(rule, options): IResult {
     // two or more word with spaces between?
     if (/\S+\s+\S+/.test(rule)) {
       this.log('parse space separation', rule)
@@ -122,7 +131,15 @@ export class RuleParser {
         return this.parseList(list, options)
       }
     }
-    return this.parseWord(rule, options)
+  }
+
+  // TODO: extract to separate class
+  protected parseString(rule, options?): IResult {
+    this.log('parseString', rule)
+    return this.parseRepeat(rule, options) ||
+      this.parseOption(rule, options) ||
+      this.parseSpaced(rule, options) ||
+      this.parseWord(rule, options)
   }
 
   protected parseWord(rule, options?) {
