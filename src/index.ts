@@ -38,13 +38,14 @@ export class RuleParser {
   logRule: boolean
   $: any
 
-  constructor(parser, options = { logging: false, registry: null, tokensMap: {} }) {
+  constructor(parser, options = { logging: false, registry: null, tokenMap: {} }) {
     if (!(parser && parser.RULE)) {
       console.error('parser', parser)
-      throw new Error('RuleParser must be created with a Parser instance')
+      throw new Error('RuleParser must be created with a Parser instance that has a public RULE method')
     }
     this.$ = parser
-    this.tokenMap = toTokenMap(parser['tokensMap'] || options.tokensMap)
+    let tokenMap = toTokenMap(parser['tokensMap'])
+    this.tokenMap = Object.assign(tokenMap, options.tokenMap)
     this.usedRules = {}
     this.logging = options.logging
     this._registry = parser['registry'] || options.registry || RuleParser.registry
@@ -75,29 +76,7 @@ export class RuleParser {
     }
     // if string, always assume subrule
     if (typeof rule === 'string') {
-      // two or more word with spaces between?
-      if (/\S+\s+\S+/.test(rule)) {
-
-        // or rule
-        let orExp = /\sor\s/
-        let pipeExp = /\|/
-
-        let or = orExp.test(rule)
-        let orPipe = pipeExp.test(rule)
-        // if separator is either 'or' OR '|'
-        if (or || orPipe) {
-          let splitExp = or ? orExp : pipeExp
-          this.log('or rule: split', splitExp)
-          let alternatives = rule.split(splitExp).map(alt => alt.trim())
-          return this.or(alternatives)
-        } else {
-          this.log('split rules')
-          let list = rule.split(/\s+/).map(item => item.trim())
-          return this.parseList(list, options)
-        }
-      }
-
-      return this.findToken(rule) ? this.consume(rule, options) : this.subrule(rule, options)
+      return this.parseString(rule, options)
     }
     if (typeof rule === 'function') {
       return { rule, code: rule.name }
@@ -105,11 +84,60 @@ export class RuleParser {
     throw new Error(`Invalid rule(s) ${typeof rule}`)
   }
 
-  protected parseList(rules, options = {}): IResult {
+  // TODO: extract to separate class
+  protected parseString(rule, options?): IResult {
+    this.log('parseString', rule)
+    const regExp = /\(([^)]+)\)([+\*])/;
+    let matches = regExp.exec(rule)
+    if (matches && matches.length > 0) {
+      let words = matches[1].split(/\s+/)
+      let lastWord = words.splice(-1, 1)
+      let sep = lastWord
+      let min = matches[2] == '+' ? 1 : 0
+      return this.repeat({
+        sep,
+        min,
+        def: words.join(' ')
+      })
+    }
+
+    // two or more word with spaces between?
+    if (/\S+\s+\S+/.test(rule)) {
+      this.log('parse space separation', rule)
+      // or rule
+      let orExp = /\sor\s/
+      let pipeExp = /\|/
+
+      let or = orExp.test(rule)
+      let orPipe = pipeExp.test(rule)
+      // if separator is either 'or' OR '|'
+      if (or || orPipe) {
+        let splitExp = or ? orExp : pipeExp
+        this.log('or rule: split', splitExp)
+        let alternatives = rule.split(splitExp).map(alt => alt.trim())
+        return this.or(alternatives)
+      } else {
+        this.log('split rules by space', options)
+        let list = rule.split(/\s+/).map(item => item.trim())
+        return this.parseList(list, options)
+      }
+    }
+    return this.parseWord(rule, options)
+  }
+
+  protected parseWord(rule, options?) {
+    return this.findToken(rule) ? this.consume(rule, options) : this.subrule(rule, options)
+  }
+
+  protected parseList(rules, options?): IResult {
+    var flat = (r, a) => Array.isArray(a) ? a.reduce(flat, r) : r.concat(a)
+
     this.log('parseList', rules, options)
     let alt = isAlt(options)
     let codeJoin = alt ? ',' : '\n'
     let parser = alt ? 'alt' : 'parse'
+    this.log('item parser', parser, options)
+    rules = rules.reduce(flat, [])
     let parsedRules = rules.map(rule => this[parser](rule, options))
     let codeStmts = parsedRules.map(pr => pr.code).join(codeJoin)
 
@@ -128,7 +156,7 @@ export class RuleParser {
     return result
   }
 
-  protected parseObj(rule, options = {}): IResult {
+  protected parseObj(rule, options?): IResult {
     this.log('parseObj', rule, options)
 
     function isRepeat(value) {
@@ -192,7 +220,7 @@ export class RuleParser {
     this.code.push(ruleCode)
   }
 
-  subrule(value, options = {}) {
+  subrule(value, options?) {
     let fun = 'SUBRULE'
     this.log('subrule', value)
     let _rule = (typeof value === 'string') ? this.findRule(value) : value
@@ -212,7 +240,7 @@ export class RuleParser {
   }
 
   // must be a Token
-  protected consume(value, options = {}): IResult {
+  protected consume(value, options?): IResult {
     this.log('consume', value)
     let token = this.resolveToken(value)
     let code = '$.CONSUME(' + codeOf(token) + ')'
@@ -223,7 +251,7 @@ export class RuleParser {
     return result
   }
 
-  protected alt(value): IResult {
+  protected alt(value, options?): IResult {
     this.log('alt', value)
     let parsedRule = this.parse(value)
     let code = '{ALT: () => {\n ' + parsedRule.code + '\n}}'
@@ -231,7 +259,7 @@ export class RuleParser {
     return { rule, code }
   }
 
-  protected repeat(value): IResult {
+  protected repeat(value, options?): IResult {
     this.log('repeat', value)
     let rep = {
       SEP: '',
@@ -262,7 +290,7 @@ export class RuleParser {
     return { rule, code }
   }
 
-  protected or(alternatives): IResult {
+  protected or(alternatives, options?): IResult {
     this.log('or', alternatives)
     let parsed = this.parse(alternatives, { parent: 'or' })
     let code = '$.OR([' + parsed.code + '])'
@@ -270,7 +298,7 @@ export class RuleParser {
     return { rule, code }
   }
 
-  protected option(value): IResult {
+  protected option(value, options?): IResult {
     this.log('option', value)
     let _rule = (typeof value === 'string') ? this.findRule[value] : value
     let parsed = this.parse(_rule)
