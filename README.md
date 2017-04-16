@@ -21,7 +21,7 @@ $.RULE("qualifiedName", () => {
 Much cleaner expressiveness with the DSL
 
 ```js
-import { rule } from './rule-parser'
+import { rule } from './chevrotain-rule-dsl'
 import {
     allTokens,
     Comma,
