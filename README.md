@@ -1,5 +1,7 @@
 # Chevrotain Rule DSL
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/kristianmandrup/chevrotain-rule-dsl.svg)](https://greenkeeper.io/)
+
 Chevrotain Rule DSL
 
 ## Install
