@@ -2,15 +2,24 @@
 
 Chevrotain Rule DSL
 
+## Example
+
+```js
+rule(this, 'selectClause', [
+    'select',
+    '(id ,)+'
+])
+
+rule(this, 'selectClause', [
+    'selectClause',
+    'fromClause'
+    '(whereClause)?'
+])
+```
+
 ## Install
 
 `npm i -S chevrotain-rule-dsl`
-
-## Examples
-
-Please see [red-dragon](https://github.com/kristianmandrup/red-dragon) test cases for more usage examples.
-
-Note: Currently this [PR](https://github.com/SAP/chevrotain/pull/451) is needed in order for the GAST to work (using generated textual code that it can walk).
 
 ## Usage
 
@@ -103,9 +112,13 @@ export class SelectParser extends Parser {
   ])
 ```
 
-## String parsing
+## More usage examples
 
-More (experimental) convenience string parsers...
+Please see [red-dragon](https://github.com/kristianmandrup/red-dragon) test cases for more usage examples.
+
+## String rules
+
+String rules allow for more concise rule expressions.
 
 ### Option expression
 
@@ -171,6 +184,53 @@ Currently the DSL is parsed in order to build a function that when executed is e
 to using the standard chevrotain rule API. In turn we also generate textual code that mirrors using the standard API. This "hack" lets the chevrotain GAST parser walk the textual code via Regular expressions as usual.
 
 Currently this [PR](https://github.com/SAP/chevrotain/pull/451) is needed in order for the GAST walker to work with the textual code generated.
+
+The key is how the `implString` is resolved, here by trying from the config `code` option if present before using the function code.
+
+```js
+// only build the gast representation once.
+if (!(this._productions.containsKey(name))) {
+    let implString = (config && config.code) || implementation.toString()
+    let gastProduction = buildTopProduction(implString, name, this.tokensMap)
+```
+
+You can also directly override the `RULE` method in your Parser as follows.
+Ideally the GAST production step should be entirely customizabl.
+
+```js
+protected RULE<T>(name: string,
+    implementation: (...implArgs: any[]) => T,
+    // TODO: how to describe the optional return type of CSTNode? T|CstNode is not good because it is not backward
+    // compatible, T|any is very general...
+    config: IRuleConfig<T> = DEFAULT_RULE_CONFIG): (idxInCallingRule?: number, ...args: any[]) => T | any {
+
+    let ruleErrors = validateRuleName(name)
+    ruleErrors = ruleErrors.concat(validateRuleDoesNotAlreadyExist(name, this.definedRulesNames, this.className))
+    this.definedRulesNames.push(name)
+    this.definitionErrors.push.apply(this.definitionErrors, ruleErrors) // mutability for the win
+
+    // only build the gast representation once.
+    if (!(this._productions.containsKey(name))) {
+        let implString = (config && config.code) || implementation.toString()
+        let gastProduction = buildTopProduction(implString, name, this.tokensMap)
+        this._productions.put(name, gastProduction)
+    }
+    else {
+        let parserClassProductions = cache.getProductionsForClass(this.className)
+        let cachedProduction = parserClassProductions.get(name)
+        // in case of duplicate rules the cache will not be filled at this point.
+        if (!isUndefined(cachedProduction)) {
+            // filling up the _productions is always needed to inheriting grammars can access it (as an instance member)
+            // otherwise they will be unaware of productions defined in super grammars.
+            this._productions.put(name, cachedProduction)
+        }
+    }
+
+    let ruleImplementation = this.defineRule(name, implementation, config)
+    this[name] = ruleImplementation
+    return ruleImplementation
+}
+```
 
 Next step will be to (also) build the GAST directly (see below).
 
