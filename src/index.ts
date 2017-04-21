@@ -35,22 +35,30 @@ export class RuleParser {
   tokenMap = {}
   public codeStr: string
   logging: boolean
+  logMap: {}
   logRule: boolean
   $: any
 
-  constructor(parser, options = { logging: false, registry: null, tokenMap: {} }) {
+  constructor(parser, options = { logging: false, logMap: {}, registry: null, tokenMap: {} }) {
     if (!(parser && parser.RULE)) {
       console.error('parser', parser)
       throw new Error('RuleParser must be created with a Parser instance that has a public RULE method')
     }
     this.$ = parser
     let tokenMap = toTokenMap(parser['tokensMap'])
+
     this.tokenMap = Object.assign(tokenMap, options.tokenMap)
     this.usedRules = {}
-    this.logging = options.logging
+    this.configureLog(options)
     this._registry = parser['registry'] || options.registry || RuleParser.registry
   }
 
+  configureLog(options) {
+    this.logMap = options.logMap || this.logMap || {}
+    this.logging = (options.logging || Object.keys(this.logMap).length > 0 || this.logging) === true
+    // console.log(this.logMap, this.logging)
+  }
+      
   findToken(value) {
     return this.tokenMap[value] || this.tokenMap[value.name]
   }
@@ -220,7 +228,7 @@ export class RuleParser {
   }
 
   log(msg, ...args) {
-    if (this.islogging) {
+    if (this.islogging === true && this.logMap[msg] === true) {
       console.log(msg, ...args)
     }
   }
@@ -344,14 +352,14 @@ export class RuleParser {
 
   public createRule(name: string, rules, options): Function {
     options = options || {}
-    this.logRule = options.logging
+    this.logRule = this.configureLog(options)
     let parsed = this.parse(rules, options)
-    this.log('createRule: parsedRule', parsed.rule)
+    this.log('createRule', 'parsed.rule', parsed.rule)
     options.code = options.code || parsed.code
     this.codeStr = parsed.code
-    this.log('createRule: parsedCode', parsed.code)
+    this.log('createRule', 'parsed.code', parsed.code)
     let parsedRule = this.rule(name, parsed.rule, options)
-    this.log('createRule: rule', parsedRule)
+    this.log('createRule', 'parsedRule', parsedRule)
     this.register(name, parsedRule)
     return parsedRule
   }

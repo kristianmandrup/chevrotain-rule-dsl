@@ -10,13 +10,16 @@ export declare class RuleParser {
     tokenMap: {};
     codeStr: string;
     logging: boolean;
+    logMap: {};
     logRule: boolean;
     $: any;
     constructor(parser: any, options?: {
         logging: boolean;
+        logMap: {};
         registry: any;
         tokenMap: {};
     });
+    configureLog(options: any): void;
     findToken(value: any): any;
     resolveToken(token: any): any;
     parse(rule: any, options?: {}): IResult;
