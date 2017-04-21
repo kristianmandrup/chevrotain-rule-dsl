@@ -1,6 +1,6 @@
 {
   "name": "chevrotain-rule-dsl",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Chevrotain parser rule DSL",
   "main": "lib/index.js",
   "scripts": {
