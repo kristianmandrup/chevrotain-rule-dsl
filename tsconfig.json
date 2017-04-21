@@ -5,7 +5,8 @@
     "target": "ES6",
     "outDir": "lib",
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "watch": true
   },
   "include": [
     "src/**/*.ts",

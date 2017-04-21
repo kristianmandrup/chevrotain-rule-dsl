@@ -332,14 +332,14 @@ export class RuleParser {
     return { rule, code }
   }
 
-  protected rule(name, rules, config): Function {
-    this.log('rule', name, rules)
+  protected rule(name, rule, config): Function {
+    this.log('rule', name, rule)
     if (typeof name !== 'string') {
       throw new Error(`rule name must be a valid name (string), was ${name}`)
     }
     let $ = this.$
-    let rule = () => $.RULE(name, rules.rule, config).bind($)
-    return rule
+    let parserRule = () => $.RULE(name, rule, config).bind($)
+    return parserRule
   }
 
   public createRule(name: string, rules, options): Function {

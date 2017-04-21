@@ -42,7 +42,7 @@ export declare class RuleParser {
     protected repeat(value: any, options?: any): IResult;
     protected or(alternatives: any, options?: any): IResult;
     protected option(value: any, options?: any): IResult;
-    protected rule(name: any, rules: any, config: any): Function;
+    protected rule(name: any, rule: any, config: any): Function;
     createRule(name: string, rules: any, options: any): Function;
 }
 export declare function rule(parser: any, name: string, rules: any, options?: any): Function;
