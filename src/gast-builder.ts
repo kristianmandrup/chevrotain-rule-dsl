@@ -45,62 +45,67 @@ export class GastBuilder {
 
     public build() {
         let topLevelProd = new gast.Rule(this.name, [], this.json)
-        return this.buildProdGast(topLevelProd)
+        return this.buildProdGast(topLevelProd, this.json)
     }
 
-    protected buildProdGast(rule: gast.Rule): gast.IProduction {
-        let prodRange = this.json['prodRange']
-        let allRanges = this.json['allRanges']
-        switch (prodRange.type) {
+    protected buildProdGast(rule: gast.Rule, value): gast.IProduction {
+        if (typeof value === 'object') {
+            let keys = Object.keys(value)
+            return keys.map(key => {
+                return this.buildProdGast(rule, key)
+            })
+        }
+        
+        switch (value.type) {
             case ProdType.AT_LEAST_ONE:
-                return this.buildAtLeastOneProd(prodRange, allRanges)
+                return this.buildAtLeastOneProd(value)
             case ProdType.AT_LEAST_ONE_SEP:
-                return this.buildAtLeastOneSepProd(prodRange, allRanges)
+                return this.buildAtLeastOneSepProd(value)
             case ProdType.MANY_SEP:
-                return this.buildManySepProd(prodRange, allRanges)
+                return this.buildManySepProd(value)
             case ProdType.MANY:
-                return this.buildManyProd(prodRange, allRanges)
+                return this.buildManyProd(value)
             case ProdType.OPTION:
-                return this.buildOptionProd(prodRange, allRanges)
+                return this.buildOptionProd(value)
             case ProdType.OR:
-                return this.buildOrProd(prodRange, allRanges)
+                return this.buildOrProd(value)
             case ProdType.FLAT:
-                return this.buildFlatProd(prodRange, allRanges)
+                return this.buildFlatProd(value)
             case ProdType.REF:
-                return this.buildRefProd(prodRange)
+                return this.buildRefProd(value)
             case ProdType.TERMINAL:
-                return this.buildTerminalProd(prodRange)
+                return this.buildTerminalProd(value)
             /* istanbul ignore next */
             default:
                 throw Error("non exhaustive match")
         }
     }
 
-    buildAtLeastOneProd(prodRange: IProdRange, allRanges) {
+    buildAtLeastOneProd(prodRange: IProdRange) {
 
     }
 
-    buildAtLeastOneSepProd(prodRange: IProdRange, allRanges) {
+    buildAtLeastOneSepProd(prodRange: IProdRange) {
 
     }
 
-    buildManySepProd(prodRange, allRanges) {
+    buildManySepProd(prodRange) {
 
     }
 
-    buildManyProd(prodRange: IProdRange, allRanges) {
+    buildManyProd(prodRange: IProdRange) {
 
     }
 
-    buildOptionProd(prodRange: IProdRange, allRanges) {
+    buildOptionProd(prodRange: IProdRange) {
 
     }
 
-    buildOrProd(prodRange: IProdRange, allRanges) {
+    buildOrProd(prodRange: IProdRange) {
 
     }
 
-    buildFlatProd(prodRange: IProdRange, allRanges) {
+    buildFlatProd(prodRange: IProdRange) {
 
     }
 
