@@ -232,7 +232,8 @@ protected RULE<T>(name: string,
 }
 ```
 
-Next step will be to (also) build the GAST directly (see below).
+Next step will be to (also) allow building the GAST directly from structured data.
+Work on this has begun in `src/gast-builder.ts`
 
 * Modify the `Parser` config object (passed at construction) not each `Rule` config object to accept a custom function that given some params (rule name / rule impel func/ ...) will create the GAST structure
 * By default it will use the built in GAST Builder
