@@ -1,5 +1,64 @@
 ## GAST
 
+The (first) `value` argument of the GASTBuilder constructor expects a nested structure, where each node
+implements the interface `IProdValue`.
+
+```js
+export interface IOccurrence {
+    refRule?:Rule
+    name: string
+    index: boolean
+    separator?: string
+    parent?: number
+}
+
+export interface IProdValue {
+    range?: IRange
+    order?: number
+    occurrence: IOccurrence
+    text?: string
+    type: ProdType
+    definition?: IProduction[]
+    children?:  IProdValue[]
+}
+```
+
+The method `decorate` can be used to return a fully formed IProdValue instance, in case you need to, such
+as parsing text to create the values required.
+
+```js
+protected decorate(value) {
+    return value
+}
+```
+
+The incoming `value` could look something like this:
+
+```js
+{
+    order: 0,
+    // text: 'OR([ ... ]),
+    type: OR,
+    occurrence: {
+        name: 'or'
+        refRule: 'orRule',
+        separator: '||'
+    },
+    children: [
+        {
+            order: 0
+            type: ALT,
+            // ...
+        },
+        {
+            order: 1
+            type: ALT,
+            // ...
+        }        
+    ]
+}
+```
+
 The GAST to be built must be created from instanced of the following GAST classes
 
 ```js

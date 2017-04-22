@@ -2,7 +2,8 @@ import { IRange, Range } from 'chevrotain/lib/src/text/range'
 import { 
     gast, 
     RepetitionMandatory, 
-    RepetitionWithSeparator, 
+    RepetitionWithSeparator,
+    RepetitionMandatoryWithSeparator,
     Repetition,
     IProduction,
     Terminal,
@@ -39,48 +40,57 @@ export enum ProdType {
 }
 
 export interface IOccurrence {
-    idx: boolean
-    refRule:Rule
+    refRule?:Rule
     name: string
-    occurrence: number
-    separator: string
-    parent: number
+    index: boolean
+    separator?: string
+    parent?: number
 }
 
 export interface IProdValue {
-    range: IRange
+    range?: IRange
+    order?: number
     occurrence: IOccurrence
-    text: string
+    text?: string
     type: ProdType
+    definition?: IProduction[]
+    children?:  IProdValue[]
 }
 
 export interface ITerminalNameToConstructor {
     [fqn: string]: TokenConstructor
 }
 
-export let terminalNameToConstructor: ITerminalNameToConstructor = {}
-
 export class GastBuilder {
-    terminals: ITerminalNameToConstructor
-    json: object
+    terminals: ITerminalNameToConstructor = {}
+    value: IProdValue
     name: string
 
-    constructor(json: object, name: string, terminals: ITerminalNameToConstructor) {
+    constructor(value: IProdValue, name: string, terminals: ITerminalNameToConstructor) {
         this.terminals = terminals
-        this.json = json
+        this.value = value
         this.name = name
     }
 
+    protected terminalNameToConstructor(name: string) {
+        return this.terminals[name]
+    }
+
     public build() {
-        let topLevelProd = new gast.Rule(this.name, [], this.json)
-        return this.buildProdGast(this.json)
+        let topLevelProd = new Rule(this.name, [], this.value)
+        return this.buildProdGast(this.value)
     }
 
     protected walkField(key) {
         return ['type', 'text', 'range', 'occurrence'].indexOf(key) < 0
     }
 
-    protected buildProdGast(value): IProduction {
+    // can f.ex be used to take the text and parse it into an occurence
+    protected decorate(value) {
+        return value
+    }
+
+    protected buildProdGast(value: IProdValue): IProduction {
         if (typeof value === 'object') {
             let keys = Object.keys(value)
             return keys.filter(this.walkField).map(key => {
@@ -88,6 +98,8 @@ export class GastBuilder {
                 return this.buildProdGast(nextValue)
             })
         }
+
+        value = this.decorate(value)
 
         switch (value.type) {
             case ProdType.AT_LEAST_ONE:
@@ -118,15 +130,14 @@ export class GastBuilder {
     buildProdWithOccurrence(
         prodInstance,
         prodValue: IProdValue) {
-        let isImplicitOccurrenceIdx = prodValue.occurrence.idx
         prodInstance.occurrenceInParent = prodValue.occurrence.parent
-        prodInstance.implicitOccurrenceIndex = isImplicitOccurrenceIdx
+        prodInstance.implicitOccurrenceIndex = prodValue.occurrence.index
 
         let nestedName = prodValue.occurrence.name
         if (!isUndefined(nestedName)) {
             (prodInstance as IOptionallyNamedProduction).name = nestedName
         }
-        return this.buildAbstractProd(prodInstance, prodValue.range)
+        return this.buildAbstractProd(prodInstance)
     }
 
     protected buildAtLeastOneProd(prodValue: IProdValue): RepetitionMandatory {
@@ -134,7 +145,7 @@ export class GastBuilder {
     }
 
     protected buildAtLeastOneSepProd(prodValue: IProdValue): RepetitionWithSeparator {
-        return this.buildRepetitionWithSep(prodValue, gast.RepetitionMandatoryWithSeparator)
+        return this.buildRepetitionWithSep(prodValue, RepetitionMandatoryWithSeparator)
     }
 
     protected buildManyProd(prodValue: IProdValue): Repetition {
@@ -142,17 +153,17 @@ export class GastBuilder {
     }
 
     protected buildManySepProd(prodValue: IProdValue): RepetitionWithSeparator {
-        return this.buildRepetitionWithSep(prodValue, gast.RepetitionWithSeparator)
+        return this.buildRepetitionWithSep(prodValue, RepetitionWithSeparator)
     }
 
 
     buildRepetitionWithSep(prodValue: IProdValue,
         repConstructor: Function): RepetitionWithSeparator {
         let occurrence = prodValue.occurrence
-        let occurrenceIdx = occurrence.idx
+        let occurrenceIdx = occurrence.index
 
         let sepName = occurrence.separator
-        let separatorType = terminalNameToConstructor[sepName]
+        let separatorType = this.terminalNameToConstructor(sepName)
         if (!separatorType) {
             throw Error('Separator Terminal Token name: ' + sepName + ' not found')
         }
@@ -163,7 +174,7 @@ export class GastBuilder {
         if (!isUndefined(nestedName)) {
             (repetitionInstance as IOptionallyNamedProduction).name = nestedName
         }
-        return this.buildAbstractProd(repetitionInstance, prodValue.range)
+        return this.buildAbstractProd(repetitionInstance)
     }
 
     buildOptionProd(prodValue: IProdValue): Option {
@@ -174,19 +185,23 @@ export class GastBuilder {
         return this.buildProdWithOccurrence(new Alternation([]), prodValue)
     }
 
+    protected nested(prodValue: IProdValue): IProdValue[]  {
+        return prodValue.children
+    }
 
-    protected buildAbstractProd<T extends AbstractProduction>(prod: T,
-        topLevelRange: IRange): T {
-        let secondLevelProds = [] // TODO
-        let secondLevelInOrder = sortBy(secondLevelProds, (prodRng) => { return prodRng.range.start })
+    protected buildAbstractProd<T extends AbstractProduction>(prodValue: IProdValue): IProdValue {
+        let secondLevelProds = this.nested(prodValue)
+        let secondLevelInOrder = sortBy(secondLevelProds, (prodVal) => { 
+            return prodVal.order ? prodVal.order : prodVal.range.start 
+        })
 
         let definition: IProduction[] = []
         forEach(secondLevelInOrder, (prodRng) => {
             definition.push(this.buildProdGast(prodRng))
         })
 
-        prod.definition = definition
-        return prod
+        prodValue.definition = definition
+        return prodValue
     }
 
     protected buildFlatProd(prodValue: IProdValue) {
@@ -195,26 +210,25 @@ export class GastBuilder {
 
     protected buildRefProd(prodValue: IProdValue): NonTerminal {
         let occurrence = prodValue.occurrence
-        let isImplicitOccurrenceIdx = occurrence.idx
         let refOccurrence = occurrence.refRule
         let refProdName = occurrence.name
         let newRef = new NonTerminal(refProdName, undefined, refOccurrence)
-        newRef.implicitOccurrenceIndex = isImplicitOccurrenceIdx
+        newRef.implicitOccurrenceIndex = occurrence.index
         return newRef
     }
 
     protected buildTerminalProd(prodValue: IProdValue): Terminal {
         let occurrence = prodValue.occurrence
-        let isImplicitOccurrenceIdx = occurrence.idx
+        let index = occurrence.index
         let terminalOccurrence = occurrence.refRule
         let terminalName = occurrence.name
-        let terminalType = terminalNameToConstructor[terminalName]
+        let terminalType = this.terminalNameToConstructor(terminalName)
         if (!terminalType) {
             throw Error('Terminal Token name: ' + terminalName + ' not found')
         }
 
         let newTerminal = new Terminal(terminalType, terminalOccurrence)
-        newTerminal.implicitOccurrenceIndex = isImplicitOccurrenceIdx
+        newTerminal.implicitOccurrenceIndex = index
         return newTerminal
     }
 }
