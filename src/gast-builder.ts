@@ -1,12 +1,30 @@
 import { IRange, Range } from 'chevrotain/lib/src/text/range'
-import { gast } from 'chevrotain/lib/src/parse/grammar/gast_public'
-import { every, filter, forEach, isEmpty, isUndefined, partial, sortBy, uniq } from 'chevrotain/lib/src/utils/utils'
+import { 
+    gast, 
+    RepetitionMandatory, 
+    RepetitionWithSeparator, 
+    Repetition,
+    IProduction,
+    Terminal,
+    Rule,
+    Flat,
+    Option,
+    Alternation,
+    NonTerminal,
+    AbstractProduction,
+    IOptionallyNamedProduction
+} from 'chevrotain/lib/src/parse/grammar/gast_public'
+import { 
+    every, 
+    filter, 
+    forEach, 
+    isEmpty, 
+    isUndefined, 
+    partial, 
+    sortBy, 
+    uniq 
+} from 'chevrotain/lib/src/utils/utils'
 import { TokenConstructor } from 'chevrotain/lib/src/scan/lexer_public'
-import IProduction = gast.IProduction
-import Terminal = gast.Terminal
-import NonTerminal = gast.NonTerminal
-import AbstractProduction = gast.AbstractProduction
-import IOptionallyNamedProduction = gast.IOptionallyNamedProduction
 
 export enum ProdType {
     OPTION,
@@ -20,8 +38,18 @@ export enum ProdType {
     FLAT
 }
 
-export interface IProdRange {
+export interface IOccurrence {
+    idx: boolean
+    refRule:Rule
+    name: string
+    occurrence: number
+    separator: string
+    parent: number
+}
+
+export interface IProdValue {
     range: IRange
+    occurrence: IOccurrence
     text: string
     type: ProdType
 }
@@ -49,10 +77,10 @@ export class GastBuilder {
     }
 
     protected walkField(key) {
-        return ['type', 'text', 'range'].indexOf(key) == -1
+        return ['type', 'text', 'range', 'occurrence'].indexOf(key) < 0
     }
 
-    protected buildProdGast(value): gast.IProduction {
+    protected buildProdGast(value): IProduction {
         if (typeof value === 'object') {
             let keys = Object.keys(value)
             return keys.filter(this.walkField).map(key => {
@@ -89,72 +117,70 @@ export class GastBuilder {
 
     buildProdWithOccurrence(
         prodInstance,
-        prodRange: IProdRange) {
-        let reResult = true
-        let isImplicitOccurrenceIdx = reResult[1] === undefined
-        prodInstance.occurrenceInParent = isImplicitOccurrenceIdx ? 1 : parseInt(reResult[1], 10)
+        prodValue: IProdValue) {
+        let isImplicitOccurrenceIdx = prodValue.occurrence.idx
+        prodInstance.occurrenceInParent = prodValue.occurrence.parent
         prodInstance.implicitOccurrenceIndex = isImplicitOccurrenceIdx
 
-        let nestedName = reResult[2]
+        let nestedName = prodValue.occurrence.name
         if (!isUndefined(nestedName)) {
             (prodInstance as IOptionallyNamedProduction).name = nestedName
         }
-        return this.buildAbstractProd(prodInstance, prodRange.range)
+        return this.buildAbstractProd(prodInstance, prodValue.range)
     }
 
-    protected buildAtLeastOneProd(prodRange: IProdRange): gast.RepetitionMandatory {
-        return this.buildProdWithOccurrence(new gast.RepetitionMandatory([]), prodRange)
+    protected buildAtLeastOneProd(prodValue: IProdValue): RepetitionMandatory {
+        return this.buildProdWithOccurrence(new RepetitionMandatory([]), prodValue)
     }
 
-    protected buildAtLeastOneSepProd(prodRange: IProdRange): gast.RepetitionWithSeparator {
-        return this.buildRepetitionWithSep(prodRange, gast.RepetitionMandatoryWithSeparator)
+    protected buildAtLeastOneSepProd(prodValue: IProdValue): RepetitionWithSeparator {
+        return this.buildRepetitionWithSep(prodValue, gast.RepetitionMandatoryWithSeparator)
     }
 
-    protected buildManyProd(prodRange: IProdRange): gast.Repetition {
-        return this.buildProdWithOccurrence(new gast.Repetition([]), prodRange)
+    protected buildManyProd(prodValue: IProdValue): Repetition {
+        return this.buildProdWithOccurrence(new Repetition([]), prodValue)
     }
 
-    protected buildManySepProd(prodRange: IProdRange): gast.RepetitionWithSeparator {
-        return this.buildRepetitionWithSep(prodRange, gast.RepetitionWithSeparator)
+    protected buildManySepProd(prodValue: IProdValue): RepetitionWithSeparator {
+        return this.buildRepetitionWithSep(prodValue, gast.RepetitionWithSeparator)
     }
 
 
-    buildRepetitionWithSep(prodRange: IProdRange,
-        repConstructor: Function): gast.RepetitionWithSeparator {
-        let reResult = true
-        let isImplicitOccurrenceIdx = reResult[1] === undefined
-        let occurrenceIdx = isImplicitOccurrenceIdx ? 1 : parseInt(reResult[1], 10)
+    buildRepetitionWithSep(prodValue: IProdValue,
+        repConstructor: Function): RepetitionWithSeparator {
+        let occurrence = prodValue.occurrence
+        let occurrenceIdx = occurrence.idx
 
-        let sepName = reResult[3]
+        let sepName = occurrence.separator
         let separatorType = terminalNameToConstructor[sepName]
         if (!separatorType) {
             throw Error('Separator Terminal Token name: ' + sepName + ' not found')
         }
 
         let repetitionInstance: any = new (<any>repConstructor)([], separatorType, occurrenceIdx)
-        repetitionInstance.implicitOccurrenceIndex = isImplicitOccurrenceIdx
-        let nestedName = reResult[2]
+        repetitionInstance.implicitOccurrenceIndex = occurrenceIdx
+        let nestedName = occurrence.name
         if (!isUndefined(nestedName)) {
             (repetitionInstance as IOptionallyNamedProduction).name = nestedName
         }
-        return this.buildAbstractProd(repetitionInstance, prodRange.range)
+        return this.buildAbstractProd(repetitionInstance, prodValue.range)
     }
 
-    buildOptionProd(prodRange: IProdRange): gast.Option {
-        return this.buildProdWithOccurrence(new gast.Option([]), prodRange)
+    buildOptionProd(prodValue: IProdValue): Option {
+        return this.buildProdWithOccurrence(new Option([]), prodValue)
     }
 
-    buildOrProd(prodRange: IProdRange): gast.Alternation {
-        return this.buildProdWithOccurrence(new gast.Alternation([]), prodRange)
+    buildOrProd(prodValue: IProdValue): Alternation {
+        return this.buildProdWithOccurrence(new Alternation([]), prodValue)
     }
 
 
-    protected buildAbstractProd<T extends gast.AbstractProduction>(prod: T,
+    protected buildAbstractProd<T extends AbstractProduction>(prod: T,
         topLevelRange: IRange): T {
         let secondLevelProds = [] // TODO
         let secondLevelInOrder = sortBy(secondLevelProds, (prodRng) => { return prodRng.range.start })
 
-        let definition: gast.IProduction[] = []
+        let definition: IProduction[] = []
         forEach(secondLevelInOrder, (prodRng) => {
             definition.push(this.buildProdGast(prodRng))
         })
@@ -163,31 +189,31 @@ export class GastBuilder {
         return prod
     }
 
-    protected buildFlatProd(prodRange: IProdRange) {
-        let prodInstance = new gast.Flat([])
+    protected buildFlatProd(prodValue: IProdValue) {
+        let prodInstance = new Flat([])
     }
 
-    protected buildRefProd(prodRange: IProdRange): gast.NonTerminal {
-        let reResult = true
-        let isImplicitOccurrenceIdx = reResult[1] === undefined
-        let refOccurrence = isImplicitOccurrenceIdx ? 1 : parseInt(reResult[1], 10)
-        let refProdName = reResult[2]
-        let newRef = new gast.NonTerminal(refProdName, undefined, refOccurrence)
+    protected buildRefProd(prodValue: IProdValue): NonTerminal {
+        let occurrence = prodValue.occurrence
+        let isImplicitOccurrenceIdx = occurrence.idx
+        let refOccurrence = occurrence.refRule
+        let refProdName = occurrence.name
+        let newRef = new NonTerminal(refProdName, undefined, refOccurrence)
         newRef.implicitOccurrenceIndex = isImplicitOccurrenceIdx
         return newRef
     }
 
-    protected buildTerminalProd(prodRange: IProdRange): gast.Terminal {
-        let reResult = true
-        let isImplicitOccurrenceIdx = reResult[1] === undefined
-        let terminalOccurrence = isImplicitOccurrenceIdx ? 1 : parseInt(reResult[1], 10)
-        let terminalName = reResult[2]
+    protected buildTerminalProd(prodValue: IProdValue): Terminal {
+        let occurrence = prodValue.occurrence
+        let isImplicitOccurrenceIdx = occurrence.idx
+        let terminalOccurrence = occurrence.refRule
+        let terminalName = occurrence.name
         let terminalType = terminalNameToConstructor[terminalName]
         if (!terminalType) {
             throw Error('Terminal Token name: ' + terminalName + ' not found')
         }
 
-        let newTerminal = new gast.Terminal(terminalType, terminalOccurrence)
+        let newTerminal = new Terminal(terminalType, terminalOccurrence)
         newTerminal.implicitOccurrenceIndex = isImplicitOccurrenceIdx
         return newTerminal
     }
