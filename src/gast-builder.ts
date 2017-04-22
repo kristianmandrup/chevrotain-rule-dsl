@@ -42,9 +42,9 @@ export enum ProdType {
 export interface IOccurrence {
     refRule?:Rule
     name: string
-    index: boolean
-    separator?: string
-    parent?: number
+    idx: boolean
+    sepName?: string
+    repeatCount?: number
 }
 
 export interface IProdValue {
@@ -72,6 +72,14 @@ export class GastBuilder {
         this.name = name
     }
 
+    public configure(options) {
+        // let spacedImpelText = " " + options.impelText
+        // let txtWithoutComments = this.removeComments(" " + spacedImpelText)
+        // let textWithoutCommentsAndStrings = this.removeStringLiterals(txtWithoutComments)
+        // this.prodRanges = this.createRanges(textWithoutCommentsAndStrings)
+        return this
+    }
+
     protected terminalNameToConstructor(name: string) {
         return this.terminals[name]
     }
@@ -85,9 +93,56 @@ export class GastBuilder {
         return ['type', 'text', 'range', 'occurrence'].indexOf(key) < 0
     }
 
+    protected regExFor(value, type) {
+        return /\s*/
+    // return dedicated regular expression with match groups
+    // return this.regExConfig[type]
+}
+
     // can f.ex be used to take the text and parse it into an occurence
-    protected decorate(value) {
-        return value
+protected decorate(value, type?: string) {
+    if (!value.text) return value
+
+    let regEx = this.regExFor(value, type)
+    let reResult = regEx.exec(value.text)
+    let idx = reResult[1] === undefined  
+     
+    let repeatCount = idx ? 1 : parseInt(reResult[1], 10)
+    let sepName = reResult[3]
+    let name = sepName || type === 'ref' ? reResult[2] : reResult[1]
+
+    value.occurrence = {
+        idx,
+        repeatCount,
+        name,
+        sepName
+    }
+    return value
+}
+
+    protected typeFor(value: IProdValue): string {
+        switch (value.type) {
+            case ProdType.AT_LEAST_ONE:
+                return 'at-least-one'
+            case ProdType.AT_LEAST_ONE_SEP:
+                return 'at-least-one-sep'
+            case ProdType.MANY_SEP:
+                return 'many-sep'
+            case ProdType.MANY:
+                return 'many'
+            case ProdType.OPTION:
+                return 'option'
+            case ProdType.OR:
+                return 'or'
+            case ProdType.FLAT:
+                return 'flat'
+            case ProdType.REF:
+                return 'ref'
+            case ProdType.TERMINAL: 
+                return 'terminal' 
+            default:
+                throw new Error(`unknown type ${value.type}`)     
+        } 
     }
 
     protected buildProdGast(value: IProdValue): IProduction {
@@ -99,7 +154,8 @@ export class GastBuilder {
             })
         }
 
-        value = this.decorate(value)
+        let type = this.typeFor(value)
+        value = this.decorate(value, type)
 
         switch (value.type) {
             case ProdType.AT_LEAST_ONE:
@@ -130,8 +186,9 @@ export class GastBuilder {
     buildProdWithOccurrence(
         prodInstance,
         prodValue: IProdValue) {
-        prodInstance.occurrenceInParent = prodValue.occurrence.parent
-        prodInstance.implicitOccurrenceIndex = prodValue.occurrence.index
+
+        prodInstance.occurrenceInParent = prodValue.occurrence.repeatCount
+        prodInstance.implicitOccurrenceIndex = prodValue.occurrence.idx
 
         let nestedName = prodValue.occurrence.name
         if (!isUndefined(nestedName)) {
@@ -160,9 +217,9 @@ export class GastBuilder {
     buildRepetitionWithSep(prodValue: IProdValue,
         repConstructor: Function): RepetitionWithSeparator {
         let occurrence = prodValue.occurrence
-        let occurrenceIdx = occurrence.index
+        let occurrenceIdx = occurrence.idx
 
-        let sepName = occurrence.separator
+        let sepName = occurrence.sepName
         let separatorType = this.terminalNameToConstructor(sepName)
         if (!separatorType) {
             throw Error('Separator Terminal Token name: ' + sepName + ' not found')
@@ -210,16 +267,16 @@ export class GastBuilder {
 
     protected buildRefProd(prodValue: IProdValue): NonTerminal {
         let occurrence = prodValue.occurrence
-        let refOccurrence = occurrence.refRule
+        let refOccurrence = occurrence.repeatCount
         let refProdName = occurrence.name
         let newRef = new NonTerminal(refProdName, undefined, refOccurrence)
-        newRef.implicitOccurrenceIndex = occurrence.index
+        newRef.implicitOccurrenceIndex = occurrence.idx
         return newRef
     }
 
     protected buildTerminalProd(prodValue: IProdValue): Terminal {
         let occurrence = prodValue.occurrence
-        let index = occurrence.index
+        let idx = occurrence.idx
         let terminalOccurrence = occurrence.refRule
         let terminalName = occurrence.name
         let terminalType = this.terminalNameToConstructor(terminalName)
@@ -228,7 +285,7 @@ export class GastBuilder {
         }
 
         let newTerminal = new Terminal(terminalType, terminalOccurrence)
-        newTerminal.implicitOccurrenceIndex = index
+        newTerminal.implicitOccurrenceIndex = idx
         return newTerminal
     }
 }
