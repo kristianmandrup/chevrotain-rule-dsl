@@ -1,6 +1,7 @@
 import { Abstract } from './abstract'
 import * as util from './util'
 import { IResult } from './result'
+import { IParser } from '../parser/base'
 
 let registry = {}
 
@@ -11,22 +12,25 @@ export interface IRepeatObj {
     def: any
 }
 
+export type Resolver = (rule: any, options?:object) => IResult
 export interface IRuleParser {
-    parse: Function
-    repeat: Function
-    obj: Function
-    list: Function
-    string: Function
-    spaced: Function // TODO: move to string parser?
+    parse: Resolver
+    repeat: Resolver
+    option: Resolver
+    obj: Resolver
+    list: Resolver
+    string: Resolver
+    word: Resolver
+    spaced: Resolver // TODO: move to string parser?
 }
 
 export interface IRules {
-    repeat: Function
-    alt: Function
-    consume: Function
-    option: Function
-    or: Function
-    subrule: Function
+    repeat: Resolver
+    alt: Resolver
+    consume: Resolver
+    option: Resolver
+    or: Resolver
+    subrule: Resolver
 }
 
 export class Base extends Abstract {

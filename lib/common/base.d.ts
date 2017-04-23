@@ -6,21 +6,24 @@ export interface IRepeatObj {
     rule: IResult;
     def: any;
 }
+export declare type Resolver = (rule: any, options?: object) => IResult;
 export interface IRuleParser {
-    parse: Function;
-    repeat: Function;
-    obj: Function;
-    list: Function;
-    string: Function;
-    spaced: Function;
+    parse: Resolver;
+    repeat: Resolver;
+    option: Resolver;
+    obj: Resolver;
+    list: Resolver;
+    string: Resolver;
+    word: Resolver;
+    spaced: Resolver;
 }
 export interface IRules {
-    repeat: Function;
-    alt: Function;
-    consume: Function;
-    option: Function;
-    or: Function;
-    subrule: Function;
+    repeat: Resolver;
+    alt: Resolver;
+    consume: Resolver;
+    option: Resolver;
+    or: Resolver;
+    subrule: Resolver;
 }
 export declare class Base extends Abstract {
     value: any;

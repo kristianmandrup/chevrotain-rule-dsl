@@ -2,12 +2,12 @@ import { Base } from '../common/base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
 
-export class ParseSpaced extends Base {
+export class SpacedParser extends Base {
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
 
-  public parse(rule, options): IResult {
+  public resolve(rule, options): IResult {
     // two or more word with spaces between?
     if (/\S+\s+\S+/.test(rule)) {
       this.log('parse space separation', rule)
@@ -22,20 +22,12 @@ export class ParseSpaced extends Base {
         let splitExp = or ? orExp : pipeExp
         this.log('or rule: split', splitExp)
         let alternatives = rule.split(splitExp).map(alt => alt.trim())
-        return this.or(alternatives)
+        return this.rules.or(alternatives)
       } else {
         this.log('split rules by space', options)
         let list = rule.split(/\s+/).map(item => item.trim())
-        return this.parseList(list, options)
+        return this.parser.list(list, options)
       }
     }
-  }
-
-  protected parseList(list, options) {
-    return this.parser.list(list, options)
-  }
-
-  protected or(value) {
-      return this.rules.or(value)
   }
 }

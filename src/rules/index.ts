@@ -8,6 +8,8 @@ import { Option } from './option'
 import { Repeat } from './repeat'
 import { Subrule } from './subrule'
 
+import { Resolver } from '../common/base'
+
 const ruleRegistry = {
     alt: Alt,
     consume: Consume,
@@ -18,12 +20,12 @@ const ruleRegistry = {
 }
 
 export class Rules extends Abstract implements IRules {
-    repeat: Function
-    alt: Function
-    consume: Function
-    option: Function
-    or: Function
-    subrule: Function
+    repeat: Resolver
+    alt: Resolver
+    consume: Resolver
+    option: Resolver
+    or: Resolver
+    subrule: Resolver
 
     constructor(parser, options) {
         super(parser, options)
