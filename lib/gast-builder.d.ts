@@ -1,17 +1,7 @@
 import { IRange } from 'chevrotain/lib/src/text/range';
 import { RepetitionMandatory, RepetitionWithSeparator, Repetition, IProduction, Terminal, Rule, Option, Alternation, NonTerminal, AbstractProduction } from 'chevrotain/lib/src/parse/grammar/gast_public';
 import { TokenConstructor } from 'chevrotain/lib/src/scan/lexer_public';
-export declare enum ProdType {
-    OPTION = 0,
-    OR = 1,
-    MANY = 2,
-    MANY_SEP = 3,
-    AT_LEAST_ONE = 4,
-    AT_LEAST_ONE_SEP = 5,
-    REF = 6,
-    TERMINAL = 7,
-    FLAT = 8,
-}
+import { ProdType } from './gast';
 export interface IOccurrence {
     refRule?: Rule;
     name: string;

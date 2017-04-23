@@ -1,6 +1,9 @@
 import { Base, IRepeatObj } from '../common/base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
+import {
+  ProdType
+} from '../gast'
 
 export class Subrule extends Base {
   constructor(parser, options?, value?) {
@@ -21,6 +24,11 @@ export class Subrule extends Base {
     this.usedRules[fun] = true
     let code = `$.${fun}(` + _rule + ')'
     let rule = () => this.$[fun](rule)
-    return { rule, code }
+
+    let type = ProdType.REF
+    let node = {
+      type
+    } 
+    return { rule, code, node }
   }
 }

@@ -27,17 +27,9 @@ import {
 } from 'chevrotain/lib/src/utils/utils'
 import { TokenConstructor } from 'chevrotain/lib/src/scan/lexer_public'
 
-export enum ProdType {
-    OPTION,
-    OR,
-    MANY,
-    MANY_SEP,
-    AT_LEAST_ONE,
-    AT_LEAST_ONE_SEP,
-    REF,
-    TERMINAL,
-    FLAT
-}
+import {
+  ProdType
+} from './gast'
 
 export interface IOccurrence {
     refRule?: Rule

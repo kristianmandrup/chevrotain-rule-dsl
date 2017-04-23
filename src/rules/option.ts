@@ -1,7 +1,9 @@
 import { Base } from '../common/base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
-
+import {
+  ProdType
+} from '../gast'
 export class Option extends Base {
   constructor(parser, options?, value?) {
     super(parser, options, value)
@@ -18,6 +20,12 @@ export class Option extends Base {
 
     let rule = () => this.$.OPTION(parsed.rule)
     let code = parsed.code
+    let type = ProdType.OPTION
+    let children = [] // TODO
+    let node = {
+      type,
+      children
+    }
     return { rule, code }
   }
 }

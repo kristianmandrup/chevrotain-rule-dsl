@@ -1,6 +1,9 @@
 import { Base } from '../common/base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
+import {
+  ProdType
+} from '../gast'
 
 export class Consume extends Base {
   constructor(parser, options?, value?) {
@@ -15,8 +18,12 @@ export class Consume extends Base {
     let code = '$.CONSUME(' + util.codeOf(token) + ')'
     let $ = this.$
     let rule = () => $.CONSUME(token).bind($)
-    let result = { rule, code }
-    this.log('consumed', result)
-    return result
+    let type = ProdType.FLAT
+    let children = [] // TODO
+    let node = {
+      type,
+      children
+    }   
+    return { rule, code, node }
   }
 }
