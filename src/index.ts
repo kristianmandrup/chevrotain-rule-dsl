@@ -3,68 +3,15 @@ import {
   Token
 } from 'chevrotain'
 
-export interface IResult {
-  rule: any
-  code: string
-}
+import { IResult } from './rule/result'
+import { Base } from './rule/base'
+import * as util from './rule/util'
 
-function codeOf(value) {
-  return typeof value === 'function' ? value.name : new String(value)
-}
-
-function isAlt(value) {
-  return value && value.parent === 'or'
-}
-
-function toTokenMap(value) {
-  if (Array.isArray(value)) {
-    return value.reduce((acc, item) => {
-      let name = typeof item === 'function' ? item.name : new String(item)
-      acc[name] = item
-    }, {})
-  }
-  if (typeof value === 'object') return value
-  throw new Error(`Invalid tokenMap ${value}`)
-}
-
-export class RuleParser {
-  static registry = {}
-  usedRules = {}
-  _registry = {}
-  code = []
-  tokenMap = {}
+export class RuleParser extends Base {
   public codeStr: string
-  logging: boolean
-  logMap: {}
-  logRule: boolean
-  $: any
 
   constructor(parser, options = { logging: false, logMap: {}, registry: null, tokenMap: {} }) {
-    if (!(parser && parser.RULE)) {
-      console.error('parser', parser)
-      throw new Error('RuleParser must be created with a Parser instance that has a public RULE method')
-    }
-    this.$ = parser
-    let tokenMap = toTokenMap(parser['tokensMap'])
-
-    this.tokenMap = Object.assign(tokenMap, options.tokenMap)
-    this.usedRules = {}
-    this.configureLog(options)
-    this._registry = parser['registry'] || options.registry || RuleParser.registry
-  }
-
-  configureLog(options) {
-    this.logMap = options.logMap || this.logMap || {}
-    this.logging = (options.logging || Object.keys(this.logMap).length > 0 || this.logging) === true
-    // console.log(this.logMap, this.logging)
-  }
-      
-  findToken(value) {
-    return this.tokenMap[value] || this.tokenMap[value.name]
-  }
-
-  resolveToken(token) {
-    return this.findToken(token) || token
+    super(parser, options)
   }
 
   parse(rule, options = {}): IResult {
@@ -158,7 +105,7 @@ export class RuleParser {
     var flat = (r, a) => Array.isArray(a) ? a.reduce(flat, r) : r.concat(a)
 
     this.log('parseList', rules, options)
-    let alt = isAlt(options)
+    let alt = util.isAlt(options)
     let codeJoin = alt ? ',' : '\n'
     let parser = alt ? 'alt' : 'parse'
     // reset options if parent is 'or'
@@ -188,15 +135,11 @@ export class RuleParser {
   protected parseObj(rule, options?): IResult {
     this.log('parseObj', rule, options)
 
-    function isRepeat(value) {
-      return value.repeat || value.sep || value.min || value.def
-    }
-
-    if (isAlt(options)) {
+    if (util.isAlt(options)) {
       return this.alt(rule)
     }
 
-    if (isRepeat(rule)) {
+    if (util.isRepeat(rule)) {
       return this.repeat(rule)
     }
 
@@ -223,40 +166,11 @@ export class RuleParser {
     }
   }
 
-  get islogging() {
-    return this.logging || this.logRule
-  }
-
-  log(msg, ...args) {
-    if (this.islogging === true && this.logMap[msg] === true) {
-      console.log(msg, ...args)
-    }
-  }
-
-  findRule(name) {
-    return this.registry[name]
-  }
-
-  get registry() {
-    return this._registry
-  }
-
-  register(name, rule) {
-    this.registry[name] = rule
-  }
-
-  addCode(ruleCode) {
-    this.code.push(ruleCode)
-  }
-
   subrule(value, options?) {
     let fun = 'SUBRULE'
     this.log('subrule', value)
     let _rule = (typeof value === 'string') ? this.findRule(value) : value
-    if (typeof _rule !== 'function') {
-      console.warn('Not yet registered, evaluate later...', _rule, value, this.findRule(value), Object.keys(this.registry))
-      // throw new Error(`subrule must be function, was ${typeof rule}`)
-    }
+
     // auto-detect reuse of subrule!
     if (this.usedRules[fun]) {
       this.log('repeat rule')
@@ -272,7 +186,7 @@ export class RuleParser {
   protected consume(value, options?): IResult {
     this.log('consume', value)
     let token = this.resolveToken(value)
-    let code = '$.CONSUME(' + codeOf(token) + ')'
+    let code = '$.CONSUME(' + util.codeOf(token) + ')'
     let $ = this.$
     let rule = () => $.CONSUME(token).bind($)
     let result = { rule, code }
@@ -352,7 +266,7 @@ export class RuleParser {
 
   public createRule(name: string, rules, options): Function {
     options = options || {}
-    this.logRule = this.configureLog(options)
+    this.configureLog(options)
     let parsed = this.parse(rules, options)
     this.log('createRule', 'parsed.rule', parsed.rule)
     options.code = options.code || parsed.code
