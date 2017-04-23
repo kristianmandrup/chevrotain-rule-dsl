@@ -1,4 +1,4 @@
-import { Logger } from './logger';
+import { Abstract } from './abstract';
 import { IResult } from './result';
 export interface IRepeatObj {
     min: number;
@@ -7,20 +7,23 @@ export interface IRepeatObj {
     def: any;
 }
 export interface IRuleParser {
+    parse: Function;
     repeat: Function;
     obj: Function;
     list: Function;
     string: Function;
+    spaced: Function;
 }
 export interface IRules {
     repeat: Function;
     alt: Function;
     consume: Function;
+    option: Function;
+    or: Function;
+    subrule: Function;
 }
-export declare class Base extends Logger {
+export declare class Base extends Abstract {
     value: any;
-    options: object;
-    $: any;
     tokenMap: {};
     usedRules: {};
     _registry: {};

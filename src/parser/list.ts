@@ -13,14 +13,14 @@ export class ParseList extends Base {
     this.log('parseList', rules, options)
     let alt = util.isAlt(options)
     let codeJoin = alt ? ',' : '\n'
-    let parser = alt ? 'alt' : 'parse'
+    let parseFun = alt ? 'alt' : 'parse'
     // reset options if parent is 'or'
     if (alt) {
       options = {}
     }
-    this.log('item parser', parser, options)
+    this.log('item parser', parseFun, options)
     rules = rules.reduce(flat, [])
-    let parsedRules = rules.map(rule => this[parser](rule, options))
+    let parsedRules = rules.map(rule => this.parser[parseFun](rule, options))
     let codeStmts = parsedRules.map(pr => pr.code).join(codeJoin)
 
     this.log('parsedRules', parsedRules)

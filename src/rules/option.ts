@@ -2,20 +2,16 @@ import { Base } from '../common/base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
 
-export class Options extends Base {
+export class Option extends Base {
   constructor(parser, options?, value?) {
     super(parser, options, value)
-  }
-
-  protected parse(value: any, options?): IResult {
-      return undefined
   }
 
   protected resolve(): IResult {
     let value = this.value
     this.log('option', value)
     let _rule = (typeof value === 'string') ? this.findRule[value] : value
-    let parsed = this.parse(_rule)
+    let parsed = this.parser.parse(_rule)
     if (typeof parsed.rule !== 'function') {
       throw new Error(`option must be function, was ${typeof parsed.rule}`)
     }

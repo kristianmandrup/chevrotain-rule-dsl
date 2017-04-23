@@ -7,7 +7,7 @@ export class Subrule extends Base {
     super(parser, options, value)
   }
 
-  resolve() {
+  public resolve() {
     let value = this.value
     let fun = 'SUBRULE'
     this.log('subrule', value)

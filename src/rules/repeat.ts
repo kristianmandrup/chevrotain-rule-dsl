@@ -7,10 +7,6 @@ export class Repeat extends Base {
     super(parser, options, value)
   }
 
-  protected parse(value: any): IResult {
-      return undefined
-  }
-
   protected resolve(): IResult {
     let value: IRepeatObj = this.value
     this.log('repeat', value)
@@ -29,7 +25,7 @@ export class Repeat extends Base {
 
     let def = value.rule || value.def
     this.log('def:', def)
-    let definition = this.parse(def)
+    let definition = this.parser.parse(def)
     this.log('definition', definition)
 
     rep.DEF = () => definition.rule
