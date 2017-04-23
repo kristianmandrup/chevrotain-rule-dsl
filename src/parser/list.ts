@@ -1,4 +1,5 @@
 import { Base } from '../common/base'
+import { ProdType } from "./../gast";
 import { IResult } from '../common/result'
 import * as util from '../common/util'
 
@@ -22,6 +23,10 @@ export class ListParser extends Base {
     rules = rules.reduce(flat, [])
     let parsedRules = rules.map(rule => this.parser[parseFun](rule, options))
     let codeStmts = parsedRules.map(pr => pr.code).join(codeJoin)
+    let children = parsedRules.map(pr => pr.node)
+    let node = {
+      children
+    }
 
     this.log('parsedRules', parsedRules)
     this.log('codeStmts', codeStmts)
@@ -32,7 +37,8 @@ export class ListParser extends Base {
     let code = alt ? codeStmts : '() => {\n' + codeStmts + '\n}\n'
     let result = {
       rule,
-      code
+      code,
+      node
     }
     this.log('parsedList', result)
     return result

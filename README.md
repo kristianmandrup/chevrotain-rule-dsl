@@ -296,7 +296,6 @@ Add tests from [red-dragon](https://github.com/kristianmandrup/red-dragon)
 ### Run Tests
 
 `npm test` or simply `ava test`
-
 ## License
 
 MIT Kristian Mandrup

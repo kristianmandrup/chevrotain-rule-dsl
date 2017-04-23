@@ -11,7 +11,8 @@ export class OptionParser extends Base {
     const regExp = /\(([^)]+)\)(\?)/;
     let matches = regExp.exec(rule)
     if (matches && matches.length > 0) {
-      return this.rules.option(matches[1])
+      let match = matches[1]
+      return this.rules.option(match)
     }
   }
 }

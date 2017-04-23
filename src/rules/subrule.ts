@@ -15,6 +15,7 @@ export class Subrule extends Base {
     let fun = 'SUBRULE'
     this.log('subrule', value)
     let _rule = (typeof value === 'string') ? this.findRule(value) : value
+    let name = (typeof value === 'string') ? value : value.toString()
 
     // auto-detect reuse of subrule!
     if (this.usedRules[fun]) {
@@ -27,7 +28,8 @@ export class Subrule extends Base {
 
     let type = ProdType.REF
     let node = {
-      type
+      type,
+      name
     } 
     return { rule, code, node }
   }

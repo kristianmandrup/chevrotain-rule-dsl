@@ -17,15 +17,15 @@ export class Option extends Base {
     if (typeof parsed.rule !== 'function') {
       throw new Error(`option must be function, was ${typeof parsed.rule}`)
     }
-
     let rule = () => this.$.OPTION(parsed.rule)
     let code = parsed.code
     let type = ProdType.OPTION
-    let children = [] // TODO
+    let nested = parsed.node
+    let children = Array.isArray(nested) ? nested : [nested]
     let node = {
       type,
       children
     }
-    return { rule, code }
+    return { rule, code, node }
   }
 }

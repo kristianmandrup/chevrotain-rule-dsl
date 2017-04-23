@@ -18,11 +18,11 @@ export class Consume extends Base {
     let code = '$.CONSUME(' + util.codeOf(token) + ')'
     let $ = this.$
     let rule = () => $.CONSUME(token).bind($)
-    let type = ProdType.FLAT
-    let children = [] // TODO
+    let type = ProdType.TERMINAL
+    let name = (typeof value === 'string') ? value : value.toString()
     let node = {
       type,
-      children
+      name
     }   
     return { rule, code, node }
   }

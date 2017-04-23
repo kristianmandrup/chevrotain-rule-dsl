@@ -16,11 +16,10 @@ export class Alt extends Base {
     let code = '{ALT: () => {\n ' + parsedRule.code + '\n}}'
     let rule = { ALT: parsedRule.rule }
     let type = ProdType.FLAT
-    let children = [] // TODO
     let node = {
       type,
-      children
+      definition: parsedRule.rule
     }    
-    return { rule, code }
+    return { rule, code, node }
   }
 }

@@ -20,7 +20,7 @@ export class Repeat extends Base {
     let value: IRepeatObj = this.value
     this.log('repeat', value)
     let rep = {
-      SEP: '',
+      SEP: value.sep,
       DEF: () => { }
     }
     let prefix = value.min > 0 ? 'AT_LEAST_ONE' : 'MANY'
@@ -29,8 +29,6 @@ export class Repeat extends Base {
     let fun = postfix ? [prefix, postfix].join('_') : prefix
 
     this.log('type', fun)
-
-    rep.SEP = value.sep
     this.log('separator', rep.SEP)
 
     let def = value.rule || value.def
@@ -48,6 +46,7 @@ export class Repeat extends Base {
     let code = (`$.${fun}(` + codeRep + ')')
     let node = {
       type,
+      sepName: value.sep,
       definition
     }
     return { rule, code, node }
