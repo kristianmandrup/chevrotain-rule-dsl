@@ -17,10 +17,12 @@ export class Subrule extends Base {
     let _rule = (typeof value === 'string') ? this.findRule(value) : value
     let name = (typeof value === 'string') ? value : value.toString()
 
+    let repeatCount = 0
     // auto-detect reuse of subrule!
     if (this.usedRules[fun]) {
       this.log('repeat rule')
       fun = 'SUBRULE2'
+      repeatCount++
     }
     this.usedRules[fun] = true
     let code = `$.${fun}(` + _rule + ')'
@@ -29,7 +31,8 @@ export class Subrule extends Base {
     let type = ProdType.REF
     let node = {
       type,
-      name
+      name,
+      repeatCount
     } 
     return { rule, code, node }
   }
