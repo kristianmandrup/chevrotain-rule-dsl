@@ -178,7 +178,23 @@ $.MANY_SEP({
 })
 ```
 
-## Status and TODO
+## RuleParser
+
+Currently this library exports:
+
+* `RuleParser` and `rule` (legacy)
+* `NewRuleParser` and `createRule` (more granular and customizable. WIP)
+
+The main parse method returns an Object with `rule` and `code`
+
+`let parsed = this.parser.parse(rules, options)`
+
+The Parser `RULE` method is later called with the `config`, containing the `code` returned by `parse`
+We should also pass a `rulesObj` for the GAST builder to use instead of only 
+relying on parsing the text of the code.
+
+`$.RULE(name, rule, config)`
+## Customization
 
 Currently the DSL is parsed in order to build a function that when executed is equivalent
 to using the standard chevrotain rule API. In turn we also generate textual code that mirrors using the standard API. This "hack" lets the chevrotain GAST parser walk the textual code via Regular expressions as usual.
