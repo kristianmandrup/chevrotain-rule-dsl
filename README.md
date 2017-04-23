@@ -185,63 +185,33 @@ to using the standard chevrotain rule API. In turn we also generate textual code
 
 Currently this [PR](https://github.com/SAP/chevrotain/pull/451) is needed in order for the GAST walker to work with the textual code generated.
 
-The key is how the `implString` is resolved, here by trying from the config `code` option if present before using the function code.
+The key is how the `implText` is resolved, here by trying from the config `code` option if present before using the function code.
 
 ```js
+// allow custom GAST builder
+let _buildTopProduction = config.buildTopProduction || buildTopProduction
+
 // only build the gast representation once.
 if (!(this._productions.containsKey(name))) {
-    let implString = (config && config.code) || implementation.toString()
-    let gastProduction = buildTopProduction(implString, name, this.tokensMap)
+    let implString = (config && config.implText) || impl.toString()
+    let gastProduction = _buildTopProduction(implString, name, this.tokensMap, config)
 ```
 
-You can also directly override the `RULE` method in your Parser as follows.
-Ideally the GAST production step should be entirely customizabl.
+You can also pass in a custom `buildTopProduction` function in the config object.
 
 ```js
-protected RULE<T>(name: string,
-    implementation: (...implArgs: any[]) => T,
-    // TODO: how to describe the optional return type of CSTNode? T|CstNode is not good because it is not backward
-    // compatible, T|any is very general...
-    config: IRuleConfig<T> = DEFAULT_RULE_CONFIG): (idxInCallingRule?: number, ...args: any[]) => T | any {
-
-    let ruleErrors = validateRuleName(name)
-    ruleErrors = ruleErrors.concat(validateRuleDoesNotAlreadyExist(name, this.definedRulesNames, this.className))
-    this.definedRulesNames.push(name)
-    this.definitionErrors.push.apply(this.definitionErrors, ruleErrors) // mutability for the win
-
-    // only build the gast representation once.
-    if (!(this._productions.containsKey(name))) {
-        let implString = (config && config.code) || implementation.toString()
-        let gastProduction = buildTopProduction(implString, name, this.tokensMap)
-        this._productions.put(name, gastProduction)
-    }
-    else {
-        let parserClassProductions = cache.getProductionsForClass(this.className)
-        let cachedProduction = parserClassProductions.get(name)
-        // in case of duplicate rules the cache will not be filled at this point.
-        if (!isUndefined(cachedProduction)) {
-            // filling up the _productions is always needed to inheriting grammars can access it (as an instance member)
-            // otherwise they will be unaware of productions defined in super grammars.
-            this._productions.put(name, cachedProduction)
-        }
-    }
-
-    let ruleImplementation = this.defineRule(name, implementation, config)
-    this[name] = ruleImplementation
-    return ruleImplementation
-}
+function buildTopProduction(implText:string, name:string, terminals:ITerminalNameToConstructor, config?:object):Rule
 ```
 
-Next step will be to (also) allow building the GAST directly from structured data.
-Work on this has begun in `src/gast-builder.ts`
+You can also override the `RULE` method in your Parser or extend the `DslParser` in `dsl-parser.js`
 
-* Modify the `Parser` config object (passed at construction) not each `Rule` config object to accept a custom function that given some params (rule name / rule impel func/ ...) will create the GAST structure
-* By default it will use the built in GAST Builder
-* Custom use cases can implement their own logic, but won't have to be forced to generate strings.
+### TODO
 
-If the `GastBuilder` string -> GAST method is exposed. Then a single generic function on the parser level can perform the conversion from a string you generated to the GAST using some ID (ruleName).
+We can also build the GAST directly from structured data. A generic GAST builder can be found in `src/gast-builder.ts`
 
 ### CST
+
+Note: Chevrotain contains a *CST visitor* described in the main Chevrotain tutorial.
 
 [Concrete Syntax Tree Creation](https://github.com/SAP/chevrotain/blob/master/docs/concrete_syntax_tree.md)
 

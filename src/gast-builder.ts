@@ -1,7 +1,7 @@
 import { IRange, Range } from 'chevrotain/lib/src/text/range'
-import { 
-    gast, 
-    RepetitionMandatory, 
+import {
+    gast,
+    RepetitionMandatory,
     RepetitionWithSeparator,
     RepetitionMandatoryWithSeparator,
     Repetition,
@@ -15,15 +15,15 @@ import {
     AbstractProduction,
     IOptionallyNamedProduction
 } from 'chevrotain/lib/src/parse/grammar/gast_public'
-import { 
-    every, 
-    filter, 
-    forEach, 
-    isEmpty, 
-    isUndefined, 
-    partial, 
-    sortBy, 
-    uniq 
+import {
+    every,
+    filter,
+    forEach,
+    isEmpty,
+    isUndefined,
+    partial,
+    sortBy,
+    uniq
 } from 'chevrotain/lib/src/utils/utils'
 import { TokenConstructor } from 'chevrotain/lib/src/scan/lexer_public'
 
@@ -40,7 +40,7 @@ export enum ProdType {
 }
 
 export interface IOccurrence {
-    refRule?:Rule
+    refRule?: Rule
     name: string
     idx: boolean
     sepName?: string
@@ -54,7 +54,7 @@ export interface IProdValue {
     text?: string
     type: ProdType
     definition?: IProduction[]
-    children?:  IProdValue[]
+    children?: IProdValue[]
 }
 
 export interface ITerminalNameToConstructor {
@@ -95,30 +95,30 @@ export class GastBuilder {
 
     protected regExFor(value, type) {
         return /\s*/
-    // return dedicated regular expression with match groups
-    // return this.regExConfig[type]
-}
+        // return dedicated regular expression with match groups
+        // return this.regExConfig[type]
+    }
 
     // can f.ex be used to take the text and parse it into an occurence
-protected decorate(value, type?: string) {
-    if (!value.text) return value
+    protected decorate(value, type?: string) {
+        if (!value.text) return value
 
-    let regEx = this.regExFor(value, type)
-    let reResult = regEx.exec(value.text)
-    let idx = reResult[1] === undefined  
-     
-    let repeatCount = idx ? 1 : parseInt(reResult[1], 10)
-    let sepName = reResult[3]
-    let name = sepName || type === 'ref' ? reResult[2] : reResult[1]
+        let regEx = this.regExFor(value, type)
+        let reResult = regEx.exec(value.text)
+        let idx = reResult[1] === undefined
 
-    value.occurrence = {
-        idx,
-        repeatCount,
-        name,
-        sepName
+        let repeatCount = idx ? 1 : parseInt(reResult[1], 10)
+        let sepName = reResult[3]
+        let name = sepName || type === 'ref' ? reResult[2] : reResult[1]
+
+        value.occurrence = {
+            idx,
+            repeatCount,
+            name,
+            sepName
+        }
+        return value
     }
-    return value
-}
 
     protected typeFor(value: IProdValue): string {
         switch (value.type) {
@@ -138,11 +138,11 @@ protected decorate(value, type?: string) {
                 return 'flat'
             case ProdType.REF:
                 return 'ref'
-            case ProdType.TERMINAL: 
-                return 'terminal' 
+            case ProdType.TERMINAL:
+                return 'terminal'
             default:
-                throw new Error(`unknown type ${value.type}`)     
-        } 
+                throw new Error(`unknown type ${value.type}`)
+        }
     }
 
     protected buildProdGast(value: IProdValue): IProduction {
@@ -242,14 +242,14 @@ protected decorate(value, type?: string) {
         return this.buildProdWithOccurrence(new Alternation([]), prodValue)
     }
 
-    protected nested(prodValue: IProdValue): IProdValue[]  {
+    protected nested(prodValue: IProdValue): IProdValue[] {
         return prodValue.children
     }
 
     protected buildAbstractProd<T extends AbstractProduction>(prodValue: IProdValue): IProdValue {
         let secondLevelProds = this.nested(prodValue)
-        let secondLevelInOrder = sortBy(secondLevelProds, (prodVal) => { 
-            return prodVal.order ? prodVal.order : prodVal.range.start 
+        let secondLevelInOrder = sortBy(secondLevelProds, (prodVal) => {
+            return prodVal.order ? prodVal.order : prodVal.range.start
         })
 
         let definition: IProduction[] = []

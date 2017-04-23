@@ -413,7 +413,7 @@ export class DslParser extends Parser {
         // only build the gast representation once.
         if (!(this._productions.containsKey(name))) {
             let implString = (config && config.implText) || impl.toString()
-            let gastProduction = _buildTopProduction(implString, name, this.tokensMap)
+            let gastProduction = _buildTopProduction(implString, name, this.tokensMap, config)
             this._productions.put(name, gastProduction)
         }
         else {
