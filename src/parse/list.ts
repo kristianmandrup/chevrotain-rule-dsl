@@ -1,13 +1,13 @@
-import { Base } from './base'
-import { IResult } from '../rule/result'
-import * as util from '../rule/util'
+import { Base } from '../common/base'
+import { IResult } from '../common/result'
+import * as util from '../common/util'
 
 export class ParseList extends Base {
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
 
-  protected parse(rules, options?): IResult {
+  public resolve(rules, options?): IResult {
     var flat = (r, a) => Array.isArray(a) ? a.reduce(flat, r) : r.concat(a)
 
     this.log('parseList', rules, options)
@@ -37,4 +37,12 @@ export class ParseList extends Base {
     this.log('parsedList', result)
     return result
   }
+
+  protected alt(value): IResult {
+    return this.rules.alt(value)
+  }
+
+  protected parse(rule): IResult {
+    return this.parser.parse(value)
+  }  
 }

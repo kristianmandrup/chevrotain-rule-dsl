@@ -3,9 +3,9 @@ import {
   Token
 } from 'chevrotain'
 
-import { IResult } from './rule/result'
-import { Base } from './rule/base'
-import * as util from './rule/util'
+import { Base, IRepeatObj } from './common/base'
+import { IResult } from './common/result'
+import * as util from './common/util'
 
 export class RuleParser extends Base {
   public codeStr: string

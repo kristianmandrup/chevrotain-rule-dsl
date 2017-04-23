@@ -1,5 +1,5 @@
-import { IResult } from './rule/result';
-import { Base } from './rule/base';
+import { Base } from './common/base';
+import { IResult } from './common/result';
 export declare class RuleParser extends Base {
     codeStr: string;
     constructor(parser: any, options?: {

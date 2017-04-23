@@ -1,4 +1,4 @@
-import { Logger } from '../logger'
+import { Logger } from './logger'
 import * as util from './util'
 import { IResult } from './result'
 
@@ -11,6 +11,19 @@ export interface IRepeatObj {
     def: any
 }
 
+export interface IRuleParser {
+    repeat: Function
+    obj: Function
+    list: Function
+    string: Function
+}
+
+export interface IRules {
+    repeat: Function
+    alt: Function
+    consume: Function
+}
+
 export class Base extends Logger {
     value: any
     options: object
@@ -18,6 +31,9 @@ export class Base extends Logger {
     tokenMap = {}
     usedRules = {}
     _registry = {}
+
+    parser: IRuleParser
+    rules: IRules
 
     constructor(parser, options?, value?) {
         super(options)

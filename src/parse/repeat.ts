@@ -1,6 +1,6 @@
-import { Base } from './base'
-import { IResult } from '../rule/result'
-import * as util from '../rule/util'
+import { Base } from '../common/base'
+import { IResult } from '../common/result'
+import * as util from '../common/util'
 
 export class ParseRepeat extends Base {
   constructor(parser, rules, options) {
@@ -11,7 +11,7 @@ export class ParseRepeat extends Base {
     return this.rules.repeat(value)
   }
 
-  public parse(rule, options): IResult {
+  public resolve(rule, options): IResult {
     // repeat
     const regExp = /\(([^)]+)\)([+\*])/;
     let matches = regExp.exec(rule)

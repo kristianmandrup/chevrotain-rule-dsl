@@ -1,6 +1,6 @@
-import { Base } from './base'
-import { IResult } from './result'
-import * as util from './util'
+import { Base } from '../common/base'
+import { IResult } from '../common/result'
+import * as util from '../common/util'
 
 export class Options extends Base {
   constructor(parser, options?, value?) {

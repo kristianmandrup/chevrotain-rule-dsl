@@ -1,7 +1,6 @@
-import { Base, IRepeatObj } from './base'
-import { IRuleConfig } from "./../dsl-parser";
-import { IResult } from './result'
-import * as util from './util'
+import { Base, IRepeatObj } from '../common/base'
+import { IResult } from '../common/result'
+import * as util from '../common/util'
 
 export class Repeat extends Base {
   constructor(parser, options?, value?: IRepeatObj) {
