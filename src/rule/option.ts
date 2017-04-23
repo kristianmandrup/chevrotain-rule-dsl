@@ -7,6 +7,10 @@ export class Options extends Base {
     super(parser, options, value)
   }
 
+  protected parse(value: any, options?): IResult {
+      return undefined
+  }
+
   protected resolve(): IResult {
     let value = this.value
     this.log('option', value)

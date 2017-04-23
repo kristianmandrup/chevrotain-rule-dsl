@@ -5,11 +5,10 @@ import * as util from './util'
 export class Consume extends Base {
   constructor(parser, options?, value?) {
     super(parser, options, value)
-
   }
 
   // must be a Token
-  public consume(): IResult {
+  public resolve(): IResult {
     let value = this.value
     this.log('consume', value)
     let token = this.resolveToken(value)

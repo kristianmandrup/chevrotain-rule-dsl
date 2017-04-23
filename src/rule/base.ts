@@ -1,10 +1,18 @@
 import { Logger } from '../logger'
 import * as util from './util'
+import { IResult } from './result'
 
 let registry = {}
 
+export interface IRepeatObj {
+    min: number
+    sep: string
+    rule: IResult
+    def: any
+}
+
 export class Base extends Logger {
-    value: string
+    value: any
     options: object
     $: any
     tokenMap = {}

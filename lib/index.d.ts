@@ -1,27 +1,13 @@
-export interface IResult {
-    rule: any;
-    code: string;
-}
-export declare class RuleParser {
-    static registry: {};
-    usedRules: {};
-    _registry: {};
-    code: any[];
-    tokenMap: {};
+import { IResult } from './rule/result';
+import { Base } from './rule/base';
+export declare class RuleParser extends Base {
     codeStr: string;
-    logging: boolean;
-    logMap: {};
-    logRule: boolean;
-    $: any;
     constructor(parser: any, options?: {
         logging: boolean;
         logMap: {};
         registry: any;
         tokenMap: {};
     });
-    configureLog(options: any): void;
-    findToken(value: any): any;
-    resolveToken(token: any): any;
     parse(rule: any, options?: {}): IResult;
     parseRepeat(rule: any, options: any): IResult;
     parseOption(rule: any, options: any): IResult;
@@ -30,12 +16,6 @@ export declare class RuleParser {
     protected parseWord(rule: any, options?: any): IResult;
     protected parseList(rules: any, options?: any): IResult;
     protected parseObj(rule: any, options?: any): IResult;
-    readonly islogging: boolean;
-    log(msg: any, ...args: any[]): void;
-    findRule(name: any): any;
-    readonly registry: {};
-    register(name: any, rule: any): void;
-    addCode(ruleCode: any): void;
     subrule(value: any, options?: any): {
         rule: () => any;
         code: string;
