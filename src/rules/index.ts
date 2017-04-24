@@ -1,5 +1,4 @@
-import { Abstract } from '../common/abstract'
-import { IRules } from '../common/base'
+import { Basic } from '../common/basic'
 
 import { Alt } from './alt'
 import { Consume } from './consume'
@@ -8,7 +7,7 @@ import { Option } from './option'
 import { Repeat } from './repeat'
 import { Subrule } from './subrule'
 
-import { Resolver } from '../common/base'
+import { Resolver, IRules } from '../common/interfaces'
 
 export const allRules = {
     Alt,
@@ -28,7 +27,7 @@ const ruleRegistry = {
     subrule: Subrule
 }
 
-export class Rules extends Abstract implements IRules {
+export class Rules extends Basic implements IRules {
     repeat: Resolver
     alt: Resolver
     consume: Resolver
@@ -38,21 +37,24 @@ export class Rules extends Abstract implements IRules {
 
     constructor(parser, options) {
         super(parser, options)
-        this.configure()
+        // this.configure()
     }
 
     protected configure() {
-        Object.keys(ruleRegistry).map(key => this.createFun(key))
+        let keys = Object.keys(ruleRegistry)
+        console.log('Rules configure',keys)
+        keys.map(key => {
+            console.log('add rule',key)
+            this[key] = this.resolverFor(key)
+        })
     }
 
-    protected createFun(name) {
-        return (value, options) => {
-            let inst = new ruleRegistry[name](this.$, this.options)
-            return inst.resolve(value, options)
-        }
+    protected resolverFor(name) {
+        let inst = new ruleRegistry[name](this.$, this.options)
+        return inst.resolve.bind(this)
     }
 }
 
-export function create(parser, options) {
+export function createRules(parser, options) {
     return new Rules(parser, options)
 }

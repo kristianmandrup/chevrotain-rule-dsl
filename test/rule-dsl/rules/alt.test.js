@@ -11,29 +11,26 @@ import {
   SelectLexer
 } from '../../lexer'
 
-export class SelectParser extends Parser {
-  registry = {}
-
-  constructor(input, options = {}) {
-    super(input, allTokens)
-  }
-}
 
 const defaultOptions = {
     // logging: true
 }
 
-function createParser(text, options) {
+function createParser(text) {
   let lexingResult = SelectLexer.tokenize(text)
-  return new SelectParser(lexingResult)
+  return new Parser(lexingResult, allTokens)
 }
 
-const parser = createParser('If')
-
 test('alt', t => {
-    let altRule = new allRules.Alt(parser)
+    let options = {
+        logging: true
+    }
+    const parser = createParser('If')
+    let altRule = new allRules.Alt(parser, options)
+    altRule.config()
     let value = 'If'
     let result = altRule.resolve(value)
     let expected = '{ALT: () => If}'
+    console.log('result', result)
     t.deepEqual(result.code, expected)
 })

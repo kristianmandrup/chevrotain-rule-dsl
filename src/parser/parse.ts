@@ -1,15 +1,17 @@
-import { Base } from '../common/base'
+import { BaseParser } from './base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
 
-export class ValueParser extends Base {
+import {
+  RulesParser
+} from '../parser'
+export class ValueParser extends BaseParser {
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
 
   resolve(rule, options = {}): IResult {
     this.log('parse', rule, options)
-
     if (Array.isArray(rule)) {
       return this.parser.list(rule, options)
     }

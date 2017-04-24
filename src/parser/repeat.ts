@@ -1,8 +1,10 @@
-import { Base } from '../common/base'
+import { BaseParser } from './base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
-
-export class RepeatParser extends Base {
+import {
+  RulesParser
+} from '../parser'
+export class RepeatParser extends BaseParser {
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }

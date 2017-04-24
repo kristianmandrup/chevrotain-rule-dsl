@@ -1,8 +1,10 @@
-import { Base } from '../common/base'
+import { BaseParser } from './base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
-
-export class WordParser extends Base {
+import {
+  RulesParser
+} from '../parser'
+export class WordParser extends BaseParser {
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
@@ -11,7 +13,6 @@ export class WordParser extends Base {
     this.log('parseString', rule)
     return this.parser.repeat(rule, options) ||
       this.parser.option(rule, options) ||
-      this.parser.spaced(rule, options) ||
-      this.parser.word(rule, options)
+      this.parser.spaced(rule, options)
   }
 }

@@ -1,5 +1,4 @@
-import { Abstract } from '../common/abstract';
-import { IRuleParser } from '../common/base';
+import { Basic } from '../common/basic';
 import { ObjParser } from './obj';
 import { ListParser } from './list';
 import { ValueParser } from './parse';
@@ -18,8 +17,8 @@ export declare const allParsers: {
     StringParser: typeof StringParser;
     WordParser: typeof WordParser;
 };
-import { Resolver } from '../common/base';
-export declare class RulesParser extends Abstract implements IRuleParser {
+import { Resolver, IRuleParser } from '../common/interfaces';
+export declare class RulesParser extends Basic implements IRuleParser {
     parse: Resolver;
     repeat: Resolver;
     option: Resolver;
@@ -29,7 +28,7 @@ export declare class RulesParser extends Abstract implements IRuleParser {
     word: Resolver;
     spaced: Resolver;
     constructor(parser: any, options: any);
-    protected configure(): void;
-    protected createFun(name: any): (value: any, options: any) => any;
+    configure(): this;
+    protected resolverFor(name: any): any;
 }
 export declare function create(parser: any, options: any): RulesParser;

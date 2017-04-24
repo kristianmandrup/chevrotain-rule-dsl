@@ -1,12 +1,11 @@
-import { Abstract } from '../common/abstract';
-import { IRules } from '../common/base';
+import { Basic } from '../common/basic';
 import { Alt } from './alt';
 import { Consume } from './consume';
 import { Or } from './or';
 import { Option } from './option';
 import { Repeat } from './repeat';
 import { Subrule } from './subrule';
-import { Resolver } from '../common/base';
+import { Resolver, IRules } from '../common/interfaces';
 export declare const allRules: {
     Alt: typeof Alt;
     Consume: typeof Consume;
@@ -15,7 +14,7 @@ export declare const allRules: {
     Repeat: typeof Repeat;
     Subrule: typeof Subrule;
 };
-export declare class Rules extends Abstract implements IRules {
+export declare class Rules extends Basic implements IRules {
     repeat: Resolver;
     alt: Resolver;
     consume: Resolver;
@@ -24,6 +23,6 @@ export declare class Rules extends Abstract implements IRules {
     subrule: Resolver;
     constructor(parser: any, options: any);
     protected configure(): void;
-    protected createFun(name: any): (value: any, options: any) => any;
+    protected resolverFor(name: any): any;
 }
-export declare function create(parser: any, options: any): Rules;
+export declare function createRules(parser: any, options: any): Rules;

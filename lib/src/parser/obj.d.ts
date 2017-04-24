@@ -1,6 +1,6 @@
-import { Base } from '../common/base';
+import { BaseParser } from './base';
 import { IResult } from '../common/result';
-export declare class ObjParser extends Base {
+export declare class ObjParser extends BaseParser {
     constructor(parser: any, rules: any, options: any);
     resolve(rule: any, options?: any): IResult;
     protected resolverFor(key: any): any;
