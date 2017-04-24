@@ -2,7 +2,7 @@ import { Base } from '../common/base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
 
-export class RuleParser extends Base {
+export class ValueParser extends Base {
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }

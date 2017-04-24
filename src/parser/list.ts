@@ -14,14 +14,14 @@ export class ListParser extends Base {
     this.log('parseList', rules, options)
     let alt = util.isAlt(options)
     let codeJoin = alt ? ',' : '\n'
-    let parseFun = alt ? 'alt' : 'parse'
+    let parseFun = alt ? this.rules.alt : this.parser.parse
     // reset options if parent is 'or'
     if (alt) {
       options = {}
     }
     this.log('item parser', parseFun, options)
     rules = rules.reduce(flat, [])
-    let parsedRules = rules.map(rule => this.parser[parseFun](rule, options))
+    let parsedRules = rules.map(rule => parseFun(rule, options))
     let codeStmts = parsedRules.map(pr => pr.code).join(codeJoin)
     let children = parsedRules.map(pr => pr.node)
     let node = {
@@ -42,13 +42,5 @@ export class ListParser extends Base {
     }
     this.log('parsedList', result)
     return result
-  }
-
-  protected alt(value): IResult {
-    return this.rules.alt(value)
-  }
-
-  protected parse(rule): IResult {
-    return this.parser.parse(value)
-  }  
+  } 
 }

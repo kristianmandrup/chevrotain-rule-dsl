@@ -1,11 +1,13 @@
 export { DslParser } from './dsl-parser'
 export { GastBuilder } from './gast-builder'
 
-import { Rules } from './rules'
-import { RulesParser } from './parser'
+import { Rules, allRules } from './rules'
+import { RulesParser, allParsers } from './parser'
 export { RuleParser, rule } from './legacy'
 
 export {
+  allRules,
+  allParsers,
   Rules,
   RulesParser
 }
@@ -16,8 +18,6 @@ export class NewRuleParser extends Base {
 
   constructor(parser, options = { logging: false, logMap: {}, registry: null, tokenMap: {} }) {
     super(parser, options)
-    this.parser = new RulesParser(parser, options)
-    this.rules = new Rules(parser, options)
   }
 
   protected rule(name, rule, config): Function {

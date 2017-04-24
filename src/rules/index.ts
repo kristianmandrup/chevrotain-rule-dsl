@@ -10,6 +10,15 @@ import { Subrule } from './subrule'
 
 import { Resolver } from '../common/base'
 
+export const allRules = {
+    Alt,
+    Consume,
+    Or,
+    Option,
+    Repeat,
+    Subrule
+}
+
 const ruleRegistry = {
     alt: Alt,
     consume: Consume,

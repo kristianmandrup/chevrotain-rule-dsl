@@ -17,11 +17,11 @@ export class Or extends Base {
     let code = '$.OR([' + parsed.code + '])'
     let children = alternatives
     let type = ProdType.OR
-    let value = {
+    let node = {
       type,
       children
     }
     let rule = () => this.$.OR(parsed.rule)
-    return { rule, code, value }
+    return { rule, code, node }
   }
 }

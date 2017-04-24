@@ -3,18 +3,29 @@ import { IRuleParser } from '../common/base'
 
 import { ObjParser } from './obj'
 import { ListParser } from './list'
-import { RuleParser } from './parse'
+import { ValueParser } from './parse'
 import { OptionParser } from './option'
 import { RepeatParser } from './repeat'
 import { SpacedParser } from './spaced'
 import { StringParser } from './string'
 import { WordParser } from './word'
 
+export const allParsers = {
+    ObjParser,
+    ListParser,
+    ValueParser,
+    OptionParser,
+    RepeatParser,
+    SpacedParser,
+    StringParser,
+    WordParser
+}
+
 const parserRegistry = {
     obj: ObjParser,
     list: ListParser,
     option: OptionParser,
-    parse: RuleParser,
+    parse: ValueParser,
     repeat: RepeatParser,
     spaced: SpacedParser,
     word: WordParser
@@ -38,7 +49,12 @@ export class RulesParser extends Abstract implements IRuleParser {
     }
 
     protected configure() {
-        Object.keys(parserRegistry).map(key => this.createFun(key))
+        let keys = Object.keys(parserRegistry)
+        console.log('configure parsers', keys)
+        keys.map(key => {
+            console.log('add parser', key)
+            this[key] = this.createFun(key)
+        })
     }
 
     protected createFun(name) {

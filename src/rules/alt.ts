@@ -10,7 +10,7 @@ export class Alt extends Base {
     super(parser, options, value)
   }
 
-  protected alt(value, options?): IResult {
+  protected resolve(value, options?): IResult {
     this.log('alt', value)
     let parsedRule = this.parser.parse(value)
     let code = '{ALT: () => {\n ' + parsedRule.code + '\n}}'

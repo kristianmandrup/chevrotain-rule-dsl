@@ -2,7 +2,7 @@
   "name": "chevrotain-rule-dsl",
   "version": "1.0.2",
   "description": "Chevrotain parser rule DSL",
-  "main": "lib/index.js",
+  "main": "lib/src/index.js",
   "scripts": {
     "test": "ava"
   },

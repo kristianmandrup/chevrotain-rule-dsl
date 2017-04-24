@@ -1,4 +1,10 @@
-export class Logger {
+export interface ILogging {
+  logging?: boolean
+  logRule?: boolean
+  logMap?: object  
+}
+
+export class Logger implements ILogging {
   logRule: boolean
   logging: boolean
   logMap: {}
@@ -7,7 +13,7 @@ export class Logger {
     this.configureLog(options)
   }
 
-  protected configureLog(options) {
+  protected configureLog(options:ILogging = {}) {
     this.logMap = options.logMap || this.logMap || {}
     this.logging = (options.logging || Object.keys(this.logMap).length > 0 || this.logging) === true
   }

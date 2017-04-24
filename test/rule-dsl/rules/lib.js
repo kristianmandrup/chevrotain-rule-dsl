@@ -1,0 +1,1 @@
+export { allRules } from '../../../lib/src'

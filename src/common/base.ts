@@ -2,6 +2,8 @@ import { Abstract } from './abstract'
 import * as util from './util'
 import { IResult } from './result'
 import { IParser } from '../parser/base'
+import { RulesParser } from '../parser' 
+import { Rules } from '../rules'
 
 let registry = {}
 
@@ -33,6 +35,11 @@ export interface IRules {
     subrule: Resolver
 }
 
+export interface IParsable {
+    tokenMap?: object
+    registry?: object
+}
+
 export class Base extends Abstract {
     value: any
     tokenMap = {}
@@ -42,9 +49,11 @@ export class Base extends Abstract {
     parser: IRuleParser
     rules: IRules
 
-    constructor(parser, options?, value?) {
+    constructor(parser, options: IParsable = {}, value?) {
         super(parser, options)
         this.value = value
+        this.parser = new RulesParser(parser, options)
+        this.rules = new Rules(parser, options)
 
         let tokenMap = util.toTokenMap(parser['tokensMap'])
         this.tokenMap = Object.assign(tokenMap, options.tokenMap)
