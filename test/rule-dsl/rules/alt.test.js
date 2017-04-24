@@ -11,8 +11,6 @@ import {
   SelectLexer
 } from '../../lexer'
 
-console.log('RulesParser', RulesParser)
-
 export class SelectParser extends Parser {
   registry = {}
 

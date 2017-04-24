@@ -2,6 +2,8 @@ import { Base } from '../common/base'
 import { IResult } from '../common/result'
 import * as util from '../common/util'
 
+console.log('Base', Base)
+
 export class ObjParser extends Base {
   constructor(parser, rules, options) {
     super(parser, rules, options)

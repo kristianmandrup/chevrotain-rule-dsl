@@ -6,7 +6,6 @@ import { RulesParser } from '../parser'
 import { Rules } from '../rules'
 
 let registry = {}
-
 export interface IRepeatObj {
     min: number
     sep: string
@@ -25,7 +24,6 @@ export interface IRuleParser {
     word: Resolver
     spaced: Resolver // TODO: move to string parser?
 }
-
 export interface IRules {
     repeat: Resolver
     alt: Resolver
@@ -34,13 +32,12 @@ export interface IRules {
     or: Resolver
     subrule: Resolver
 }
-
 export interface IParsable {
     tokenMap?: object
     registry?: object
 }
 
-export class Base extends Abstract {
+export class Base extends Abstract  {
     value: any
     tokenMap = {}
     usedRules = {}
