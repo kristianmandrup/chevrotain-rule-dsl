@@ -1,18 +1,19 @@
 import { BaseParser } from './base'
-import { IResult } from '../common/result'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
-import {
-  RulesParser
-} from '../parser'
+
 export class WordParser extends BaseParser {
+  option: Function
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
 
   protected resolve(rule, options?): IResult {
     this.log('parseString', rule)
-    return this.parser.repeat(rule, options) ||
-      this.parser.option(rule, options) ||
-      this.parser.spaced(rule, options)
+    let result = this.funs.repeat(rule, options) ||
+      this.option(rule, options) ||
+      this.funs.spaced(rule, options) ||
+      this.funs.consume(rule, options)
+      return result || this.unknown(rule, options)
   }
 }

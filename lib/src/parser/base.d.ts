@@ -5,8 +5,17 @@ export interface IParser {
     resolve: Resolver;
 }
 export declare class BaseParser extends Base implements IConfig {
-    parser?: any;
+    parserKeys: string[];
+    ruleKeys: string[];
+    parsers?: any;
     rules?: any;
+    funs: any;
     constructor(parser: any, rules: any, options: any);
+    protected unknown(rule: any, options?: any): void;
+    protected methodize(): void;
+    protected methodizeParsers(): void;
+    protected methodizeRules(): void[];
     config(conf?: IConfig): this;
+    protected configParser(conf?: IConfig): void;
+    protected configRules(conf?: IConfig): void;
 }

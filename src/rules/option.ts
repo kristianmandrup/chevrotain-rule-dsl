@@ -1,10 +1,10 @@
-import { Base } from '../common/base'
-import { IResult } from '../common/result'
+import { BaseRule } from './base'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
 import {
   ProdType
 } from '../gast'
-export class Option extends Base {
+export class Option extends BaseRule {
   constructor(parser, options?, value?) {
     super(parser, options, value)
   }

@@ -1,6 +1,10 @@
-import { IResult } from './result'
+export interface IResult {
+  rule: any
+  code?: string
+  node?: object
+}
 export interface IConfig {
-    parser?: any // IRuleParser
+    parsers?: any // IRuleParser
     rules?: any // IRules
 }
 export interface IRepeatObj {

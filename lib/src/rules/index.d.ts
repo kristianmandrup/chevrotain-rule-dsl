@@ -21,8 +21,11 @@ export declare class Rules extends Basic implements IRules {
     option: Resolver;
     or: Resolver;
     subrule: Resolver;
+    ruleKeys: string[];
+    configured: boolean;
     constructor(parser: any, options: any);
-    protected configure(): void;
+    config(ctx: any): void;
+    configure(): this;
     protected resolverFor(name: any): any;
 }
 export declare function createRules(parser: any, options: any): Rules;

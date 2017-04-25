@@ -3,7 +3,9 @@ import {
   Parser
 } from 'chevrotain'
 import {
-  allRules
+  allRules,
+  Rules,
+  Parsers
 } from './lib'
 
 import {
@@ -27,10 +29,21 @@ test('alt', t => {
     }
     const parser = createParser('If')
     let altRule = new allRules.Alt(parser, options)
-    altRule.config()
+
+    console.log('Rules', Rules)
+    let rules = new Rules(parser, options).configure()
+    let parsers = new Parsers(parser, options).configure()
+    
+    console.log('parsers config')
+    parsers.config({parsers, rules})
+    console.log('rules config')
+    rules.config({parsers, rules})
+
+    altRule.config({parsers, rules})
+
     let value = 'If'
     let result = altRule.resolve(value)
-    let expected = '{ALT: () => If}'
+    let expected = '{ALT: () => { $.CONSUME(If) }}'
     console.log('result', result)
     t.deepEqual(result.code, expected)
 })

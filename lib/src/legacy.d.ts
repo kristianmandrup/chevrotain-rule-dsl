@@ -13,7 +13,7 @@ export declare class RuleParser extends Base {
     parseOption(rule: any, options: any): IResult;
     parseSpaced(rule: any, options: any): IResult;
     protected parseString(rule: any, options?: any): IResult;
-    protected parseWord(rule: any, options?: any): IResult;
+    protected parseWord(rule: any, options?: any): any;
     protected parseList(rules: any, options?: any): IResult;
     protected parseObj(rule: any, options?: any): IResult;
     subrule(value: any, options?: any): {

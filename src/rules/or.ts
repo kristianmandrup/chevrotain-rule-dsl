@@ -1,12 +1,12 @@
-import { Base, IRepeatObj } from '../common/base'
-import { IResult } from '../common/result'
+import { BaseRule } from './base'
+import { IResult, IRepeatObj } from '../common/interfaces'
 import * as util from '../common/util'
 import { IRuleConfig } from "./../dsl-parser";
 import {
   ProdType
 } from '../gast'
 
-export class Or extends Base {
+export class Or extends BaseRule {
   constructor(parser, options?, value?: IRepeatObj) {
     super(parser, options, value)
   }

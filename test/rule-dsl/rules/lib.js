@@ -1,1 +1,5 @@
-export { allRules } from '../../../lib/src'
+export { 
+    allRules, 
+    Rules,
+    Parsers
+} from '../../../lib/src'

@@ -18,7 +18,7 @@ export declare const allParsers: {
     WordParser: typeof WordParser;
 };
 import { Resolver, IRuleParser } from '../common/interfaces';
-export declare class RulesParser extends Basic implements IRuleParser {
+export declare class Parsers extends Basic implements IRuleParser {
     parse: Resolver;
     repeat: Resolver;
     option: Resolver;
@@ -27,8 +27,11 @@ export declare class RulesParser extends Basic implements IRuleParser {
     string: Resolver;
     word: Resolver;
     spaced: Resolver;
+    parserKeys: string[];
+    configured: boolean;
     constructor(parser: any, options: any);
+    config(ctx: any): void;
     configure(): this;
     protected resolverFor(name: any): any;
 }
-export declare function create(parser: any, options: any): RulesParser;
+export declare function create(parser: any, options: any): Parsers;

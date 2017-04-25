@@ -1,9 +1,9 @@
 export { DslParser } from './dsl-parser';
 export { GastBuilder } from './gast-builder';
 import { Rules, allRules } from './rules';
-import { RulesParser, allParsers } from './parser';
+import { Parsers, allParsers } from './parser';
 export { RuleParser, rule } from './legacy';
-export { allRules, allParsers, Rules, RulesParser };
+export { allRules, allParsers, Rules, Parsers };
 import { Base } from './common/base';
 export declare class NewRuleParser extends Base {
     codeStr: string;

@@ -33,7 +33,7 @@ const parserRegistry = {
 
 import { Resolver, IRuleParser } from '../common/interfaces'
 
-export class RulesParser extends Basic implements IRuleParser {
+export class Parsers extends Basic implements IRuleParser {
     parse: Resolver
     repeat: Resolver
     option: Resolver
@@ -42,29 +42,37 @@ export class RulesParser extends Basic implements IRuleParser {
     string: Resolver
     word: Resolver
     spaced: Resolver
+    parserKeys: string[]
+    configured = false
 
     constructor(parser, options) {
         super(parser, options)
-        // this.configure()
+    }
+
+    public config(ctx) {
+        console.log('Parser config', this.parserKeys)
+        this.parserKeys.map(key => {
+            this[key].config(ctx)
+        })
     }
 
     public configure() {
-        let keys = Object.keys(parserRegistry)
-        console.log('configure parsers', keys)
-        keys.map(key => {
+        if (this.configured) return
+        this.parserKeys = Object.keys(parserRegistry)
+        console.log('Parser configure', this.parserKeys)
+        this.parserKeys.map(key => {
             console.log('add parser', key)
-            this[key] = this.resolverFor(key)
+            this[key] = this[key] || this.resolverFor(key)
         })
+        this.configured = true
         return this
     }
 
     protected resolverFor(name) {
-        let inst = new parserRegistry[name](this.$, this.options)
-        inst.config({parser: this})
-        return inst.resolve.bind(inst)
+        return new parserRegistry[name](this.$, this.options)
     }
 }
 
 export function create(parser, options) {
-    return new RulesParser(parser, options)
+    return new Parsers(parser, options)
 }

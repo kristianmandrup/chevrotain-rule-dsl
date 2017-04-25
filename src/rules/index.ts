@@ -1,4 +1,5 @@
 import { Basic } from '../common/basic'
+import { ParserDefinitionErrorType } from "./../dsl-parser";
 
 import { Alt } from './alt'
 import { Consume } from './consume'
@@ -34,24 +35,34 @@ export class Rules extends Basic implements IRules {
     option: Resolver
     or: Resolver
     subrule: Resolver
+    ruleKeys: string[]
+    configured = false
 
     constructor(parser, options) {
         super(parser, options)
-        // this.configure()
     }
 
-    protected configure() {
-        let keys = Object.keys(ruleRegistry)
-        console.log('Rules configure',keys)
-        keys.map(key => {
-            console.log('add rule',key)
-            this[key] = this.resolverFor(key)
+    public config(ctx) {
+        console.log('Rules config', this.ruleKeys)
+        this.ruleKeys.map(key => {
+            this[key].config(ctx)
         })
     }
 
+    public configure() {
+        if (this.configured) return
+        this.ruleKeys = Object.keys(ruleRegistry)
+        console.log('Rules configure', this.ruleKeys)
+        this.ruleKeys.map(key => {
+            console.log('add rule',key)
+            this[key] = this[key] || this.resolverFor(key)
+        })
+        this.configured = true
+        return this
+    }
+
     protected resolverFor(name) {
-        let inst = new ruleRegistry[name](this.$, this.options)
-        return inst.resolve.bind(this)
+        return new ruleRegistry[name](this.$, this.options)
     }
 }
 

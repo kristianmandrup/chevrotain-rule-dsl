@@ -1,6 +1,6 @@
-import { Base } from '../common/base';
-import { IResult } from '../common/result';
-export declare class Consume extends Base {
+import { BaseRule } from './base';
+import { IResult } from '../common/interfaces';
+export declare class Consume extends BaseRule {
     constructor(parser: any, options?: any, value?: any);
-    resolve(): IResult;
+    resolve(value: any, options: any): IResult;
 }

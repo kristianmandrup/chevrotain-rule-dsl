@@ -2,6 +2,7 @@ import { Basic } from './basic';
 import { IConfig } from './interfaces';
 import { IParsable } from './interfaces';
 export declare class Base extends Basic implements IConfig {
+    name?: string;
     value: any;
     tokenMap: {};
     usedRules: {};

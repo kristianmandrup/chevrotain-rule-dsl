@@ -1,18 +1,17 @@
-import { Base } from '../common/base'
-import { IResult } from '../common/result'
+import { BaseRule } from './base'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
 import {
   ProdType
 } from '../gast'
 
-export class Consume extends Base {
+export class Consume extends BaseRule {
   constructor(parser, options?, value?) {
     super(parser, options, value)
   }
 
   // must be a Token
-  public resolve(): IResult {
-    let value = this.value
+  public resolve(value, options): IResult {
     this.log('consume', value)
     let token = this.resolveToken(value)
     let code = '$.CONSUME(' + util.codeOf(token) + ')'

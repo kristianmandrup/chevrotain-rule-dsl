@@ -14,6 +14,7 @@ import {
 } from './interfaces'
 
 export class Base extends Basic implements IConfig  {
+    name?: string
     value: any
     tokenMap = {}
     usedRules = {}
@@ -41,6 +42,10 @@ export class Base extends Basic implements IConfig  {
     }
 
     protected findToken(value) {
+        if (!value) {
+            console.error('invalid token value', value)
+            return
+        }
         return this.tokenMap[value] || this.tokenMap[value.name]
     }
 

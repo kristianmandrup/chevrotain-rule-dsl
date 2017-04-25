@@ -1,6 +1,6 @@
-import { Base } from '../common/base';
+import { BaseRule } from './base';
 import { ProdType } from '../gast';
-export declare class Subrule extends Base {
+export declare class Subrule extends BaseRule {
     constructor(parser: any, options?: any, value?: any);
     resolve(): {
         rule: () => any;

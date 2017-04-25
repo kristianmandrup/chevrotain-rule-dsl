@@ -1,10 +1,10 @@
-import { Base, IRepeatObj } from '../common/base'
-import { IResult } from '../common/result'
+import { BaseRule } from './base'
+import { IResult, IRepeatObj } from '../common/interfaces'
 import * as util from '../common/util'
 import {
   ProdType
 } from '../gast'
-export class Repeat extends Base {
+export class Repeat extends BaseRule {
   constructor(parser, options?, value?: IRepeatObj) {
     super(parser, options, value)
   }
