@@ -21,12 +21,18 @@ export class Logger implements ILogging {
     return this.logging === true
   }
 
-  isMapped(rule) {
+  protected isMapped(rule) {
     if (!this.logMap) return true
     return this.logMap && this.logMap[rule]
   }
 
-  log(rule, ...args) {
+  protected logger(rule) {
+    return (...args) => {
+      this.log(rule, ...args)
+    }
+  }
+
+  protected log(rule, ...args) {
     if (this.islogging) {
       if (this.isMapped(rule)) {
       console.log(rule, ...args)

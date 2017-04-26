@@ -41,16 +41,16 @@ export class BaseParser extends Base implements IConfig {
     }
 
     protected methodizeParsers() {
-        console.log('methodizeParsers', this.name)
+        // console.log('methodizeParsers', this.name)
         if (!this.parsers) {
             throw new Error('methodize: missing parser')
         }
-        console.log('parserKeys', this.name, this.parserKeys)
+        // console.log('parserKeys', this.name, this.parserKeys)
         this.parsers.funs = this.parsers.funs || {}
         let self = this
         this.parserKeys.map(key => {
             let inst = this.parsers[key]
-            console.log('parsers methodize', key)
+            // console.log('parsers methodize', key)
             if (inst) {
                 let fun = inst.resolve.bind(self)
                 this.parsers.funs[key] = fun
@@ -58,18 +58,18 @@ export class BaseParser extends Base implements IConfig {
                 console.log('no parse inst', key)
             }
         })
-        console.log('parsers', this.parsers.funs)
+        // console.log('parsers', this.parsers.funs)
     }
 
     protected methodizeRules() {
-        console.log('methodizeRules', this.name)
+        // console.log('methodizeRules', this.name)
         if (!this.rules) {
             throw new Error('methodize: missing rules')
         }
         this.rules.funs = this.rules.funs || {}
         let self = this
         return this.ruleKeys.map(key => {
-            console.log('rules methodize', key)
+            // console.log('rules methodize', key)
             let inst = this.rules[key]
             if (inst) {
                 let fun = inst.resolve.bind(self)
@@ -90,12 +90,12 @@ export class BaseParser extends Base implements IConfig {
     }
 
     protected configParser(conf: IConfig = {}) {
-        console.log('BaseParser config parser')
+        // console.log('BaseParser config parser')
         this.parsers = conf.parsers
     }
 
     protected configRules(conf: IConfig = {}) {
-        console.log('BaseParser config rules')
+        // console.log('BaseParser config rules')
         this.rules = conf.rules
     }
 }

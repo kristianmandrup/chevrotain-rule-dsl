@@ -41,7 +41,6 @@ export class ValueParser extends BaseParser {
     }
     // if string, always assume subrule
     if (typeof rule === 'string') {
-      console.log('funs', this.parsers.funs)
       return this.parsers.funs.string(rule, options)
     }
     if (typeof rule === 'function') {

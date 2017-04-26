@@ -4,6 +4,13 @@ import * as util from '../common/util'
 import {
   ProdType
 } from '../gast'
+
+function calcType(value) {
+  if (value.min > 0) {
+    return value.sep ? ProdType.AT_LEAST_ONE : ProdType.AT_LEAST_ONE_SEP
+  }
+  return value.sep ? ProdType.MANY : ProdType.MANY_SEP
+}
 export class Repeat extends BaseRule {
   parseKeys = [
     'parse'
@@ -13,45 +20,54 @@ export class Repeat extends BaseRule {
     super(parser, options, value)
   }
 
-  protected calcType(value) {
-    if (value.min > 0) {
-      return value.sep ? ProdType.AT_LEAST_ONE : ProdType.AT_LEAST_ONE_SEP
-    }
-    return value.sep ? ProdType.MANY : ProdType.MANY_SEP
-  }
-
   public resolve(value, options: object): IResult {
-    this.log('repeat', value)
-    let rep = {
-      SEP: value.sep,
-      DEF: () => { }
+    const log = this.logger('repeat')
+
+    log({value, options})
+
+    if (typeof value !== 'object') {
+      this.error(`Repeat rule must take an object, was: ${value}`)
     }
+    let sep = value.sep
+    let rep = {}
+    if (sep) {
+      rep['SEP'] = sep
+    }
+    log('rep', rep)
     let prefix = value.min > 0 ? 'AT_LEAST_ONE' : 'MANY'
-    let type = this.calcType(value)
-    let postfix = value.sep ? 'SEP' : null
+    let type = calcType(value)
+    let postfix = value.sep ? 'SEP' : false
     let fun = postfix ? [prefix, postfix].join('_') : prefix
 
-    this.log('type', fun)
-    this.log('separator', rep.SEP)
-
+    log('type', fun)
     let def = value.rule || value.def
-    this.log('def:', def)
+    log('def', def)
     let definition = this.funs.parse(def)
-    this.log('definition', definition)
+    log('definition', definition)
 
-    rep.DEF = () => definition.rule
+    rep['DEF'] = () => definition.rule
+    let defCode = definition.code
+    let codeDEF = `() => {\n${defCode}\n}`
     let codeRep = {
-      SEP: rep.SEP,
-      DEF: definition.code
+      DEF: codeDEF
     }
-    this.log('repeat rule:', fun, rep)
-    let rule = this.$[fun](rep)
-    let code = (`$.${fun}(` + codeRep + ')')
+    if (sep) {
+      codeRep['SEP'] = sep
+    }
+
+    log('rule:', fun, rep, codeRep)
+    let ruleFun = this.$[fun]
+    let rule = ruleFun(rep)
+    let code = `$.${fun}(${codeRep})`
     let node = {
       type,
-      sepName: value.sep,
       definition
     }
+    if (sep) {
+      node['sepName'] = sep
+    }
+
+    log({node})
     return { rule, code, node }
   }
 }

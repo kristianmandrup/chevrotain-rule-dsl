@@ -9,6 +9,7 @@ export declare class Logger implements ILogging {
     constructor(options: any);
     protected configureLog(options?: ILogging): void;
     readonly islogging: boolean;
-    isMapped(rule: any): any;
-    log(rule: any, ...args: any[]): void;
+    protected isMapped(rule: any): any;
+    protected logger(rule: any): (...args: any[]) => void;
+    protected log(rule: any, ...args: any[]): void;
 }
