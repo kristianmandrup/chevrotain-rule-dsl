@@ -15,7 +15,14 @@ test('OR', t => {
 
     let value = 'If or Else'
     let result = rule.resolve(value)
-    let expected = /\$\.OR\(\[{ALT: \(\) => {\s+\$\.CONSUME\(If\)\s+},\s+{ALT: \(\) => {\s+\$\.CONSUME\(Else\)\s+}\]\)/
+    let expected = [
+        /\$\.OR\(\[{ALT/,
+        /ALT: \(\) =>/,
+        /{\s+\$\.CONSUME\(If\)\s+}/,
+        /{\s+\$\.CONSUME\(Else\)\s+}/
+    ]
     console.log('result', result)
-    t.regex(result.code, expected)
+    expected.map(exp => {
+        t.regex(result.code, exp)
+    })
 })

@@ -4,7 +4,7 @@ import {
   allRules
 } from './lib'
 
-test('alt', t => {
+test('OPTION', t => {
     let options = {
         logging: true
     }
@@ -13,9 +13,15 @@ test('alt', t => {
     let rule = new allRules.Option(parser, options)
     rule.config({parsers, rules})
 
-    let value = '(If Else)?'
+    let value = 'If Else'
     let result = rule.resolve(value)
-    let expected = /\$\.OPTION\(\[{If}, {Else}\]\)/
+    let expected = [
+        /\$\.OPTION\(/,
+        /\$\.CONSUME\(If\)/,
+        /\$\.CONSUME\(Else\)/
+    ]        
     console.log('result', result)
-    t.regex(result.code, expected)
+    expected.map(exp => {
+        t.regex(result.code, exp)
+    })
 })

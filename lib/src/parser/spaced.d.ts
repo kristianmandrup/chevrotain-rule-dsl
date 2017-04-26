@@ -4,5 +4,5 @@ export declare class SpacedParser extends BaseParser {
     parserKeys: string[];
     ruleKeys: string[];
     constructor(parser: any, rules: any, options: any);
-    resolve(rule: any, options: any): IResult;
+    resolve(rule: any, options?: any): IResult;
 }

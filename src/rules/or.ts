@@ -15,7 +15,7 @@ export class Or extends BaseRule {
     this.log('or', alternatives)
     let parsed = this.funs.parse(alternatives, { parent: 'or' })
     let code = '$.OR([' + parsed.code + '])'
-    let children = alternatives
+    let children = parsed.node
     let type = ProdType.OR
     let node = {
       type,

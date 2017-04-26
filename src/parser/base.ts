@@ -25,10 +25,15 @@ export class BaseParser extends Base implements IConfig {
         super(parser, rules, options)
     }
 
-  protected unknown(rule, options?) {
-    console.error('unknown rule', rule, options)
-    throw new Error('unknown rule')
-  }
+    protected unknown(rule, options?) {
+        console.error('unknown rule', rule, options)
+        throw new Error('unknown rule')
+    }
+
+    protected error(msg) {
+        console.error(msg)
+        throw new Error(msg)
+    }
 
     protected methodize() {
         this.methodizeParsers()
@@ -41,7 +46,7 @@ export class BaseParser extends Base implements IConfig {
             throw new Error('methodize: missing parser')
         }
         console.log('parserKeys', this.name, this.parserKeys)
-        this.parsers.funs = this.parsers.funs|| {}
+        this.parsers.funs = this.parsers.funs || {}
         let self = this
         this.parserKeys.map(key => {
             let inst = this.parsers[key]
@@ -65,7 +70,7 @@ export class BaseParser extends Base implements IConfig {
         let self = this
         return this.ruleKeys.map(key => {
             console.log('rules methodize', key)
-             let inst = this.rules[key]
+            let inst = this.rules[key]
             if (inst) {
                 let fun = inst.resolve.bind(self)
                 this.rules.funs[key] = fun
