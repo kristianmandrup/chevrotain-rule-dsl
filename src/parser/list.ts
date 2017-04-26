@@ -1,9 +1,16 @@
 import { BaseParser } from './base'
 import { ProdType } from "./../gast";
-import { IResult } from '../common/result'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
 
 export class ListParser extends BaseParser {
+  parseKeys = [
+    'parse'
+  ]
+  ruleKeys = [
+    'alt'
+  ]
+
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
@@ -14,7 +21,7 @@ export class ListParser extends BaseParser {
     this.log('parseList', rules, options)
     let alt = util.isAlt(options)
     let codeJoin = alt ? ',' : '\n'
-    let parseFun = alt ? this.rules.alt : this.parser.parse
+    let parseFun = alt ? this.funs.alt : this.funs.parse
     // reset options if parent is 'or'
     if (alt) {
       options = {}

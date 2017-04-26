@@ -1,9 +1,7 @@
 import { BaseParser } from './base'
 import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
-import {
-  RulesParser
-} from '../parser'
+
 export class StringParser extends BaseParser {
   option: Function
   repeat: Function

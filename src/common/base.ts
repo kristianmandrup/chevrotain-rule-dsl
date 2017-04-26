@@ -2,8 +2,6 @@ import { Basic } from './basic'
 import { IConfig } from './interfaces'
 import * as util from './util'
 import { IParser } from '../parser/base'
-import { RulesParser } from '../parser' 
-import { Rules } from '../rules'
 
 let registry = {}
 
@@ -13,7 +11,7 @@ import {
     IParsable
 } from './interfaces'
 
-export class Base extends Basic implements IConfig  {
+export class Base extends Basic implements IConfig {
     name?: string
     value: any
     tokenMap = {}
@@ -29,7 +27,22 @@ export class Base extends Basic implements IConfig  {
         this._registry = parser['registry'] || options.registry || registry
     }
 
+    protected resolveRuleRef(ref) {
+        switch (typeof ref) {
+            case 'string':
+                return this.findRule(ref)
+            case 'function':
+                return ref
+            default:
+                console.error(ref)
+                throw new Error(`Invalid rule ref: ${ref}`)
+        }
+    }
+
     protected findRule(name) {
+        if (typeof name !== 'string') {
+            throw new Error(`findRule must take a string: ${name}`)
+        }
         return this.registry[name]
     }
 

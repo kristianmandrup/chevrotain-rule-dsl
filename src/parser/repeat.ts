@@ -1,9 +1,7 @@
 import { BaseParser } from './base'
-import { IResult } from '../common/result'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
-import {
-  RulesParser
-} from '../parser'
+
 export class RepeatParser extends BaseParser {
   constructor(parser, rules, options) {
     super(parser, rules, options)

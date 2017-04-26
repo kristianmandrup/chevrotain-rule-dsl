@@ -1,7 +1,6 @@
 import { BaseParser } from './base'
 import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
-
 export class WordParser extends BaseParser {
   option: Function
   constructor(parser, rules, options) {

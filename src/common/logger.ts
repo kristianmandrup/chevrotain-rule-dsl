@@ -5,7 +5,6 @@ export interface ILogging {
 }
 
 export class Logger implements ILogging {
-  logRule: boolean
   logging: boolean
   logMap: {}
 
@@ -19,12 +18,19 @@ export class Logger implements ILogging {
   }
 
   get islogging() {
-    return this.logging || this.logRule
+    return this.logging === true
   }
 
-  log(msg, ...args) {
-    if (this.islogging === true && this.logMap[msg] === true) {
-      console.log(msg, ...args)
+  isMapped(rule) {
+    if (!this.logMap) return true
+    return this.logMap && this.logMap[rule]
+  }
+
+  log(rule, ...args) {
+    if (this.islogging) {
+      if (this.isMapped(rule)) {
+      console.log(rule, ...args)
     }
+    } 
   }
 }

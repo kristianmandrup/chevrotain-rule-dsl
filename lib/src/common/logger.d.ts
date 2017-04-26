@@ -4,11 +4,11 @@ export interface ILogging {
     logMap?: object;
 }
 export declare class Logger implements ILogging {
-    logRule: boolean;
     logging: boolean;
     logMap: {};
     constructor(options: any);
     protected configureLog(options?: ILogging): void;
     readonly islogging: boolean;
-    log(msg: any, ...args: any[]): void;
+    isMapped(rule: any): any;
+    log(rule: any, ...args: any[]): void;
 }

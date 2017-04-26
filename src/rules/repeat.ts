@@ -5,6 +5,10 @@ import {
   ProdType
 } from '../gast'
 export class Repeat extends BaseRule {
+  parseKeys = [
+    'parse'
+  ]
+
   constructor(parser, options?, value?: IRepeatObj) {
     super(parser, options, value)
   }
@@ -16,8 +20,7 @@ export class Repeat extends BaseRule {
     return value.sep ? ProdType.MANY : ProdType.MANY_SEP
   }
 
-  public resolve(): IResult {
-    let value: IRepeatObj = this.value
+  public resolve(value, options: object): IResult {
     this.log('repeat', value)
     let rep = {
       SEP: value.sep,
@@ -33,7 +36,7 @@ export class Repeat extends BaseRule {
 
     let def = value.rule || value.def
     this.log('def:', def)
-    let definition = this.parser.parse(def)
+    let definition = this.funs.parse(def)
     this.log('definition', definition)
 
     rep.DEF = () => definition.rule

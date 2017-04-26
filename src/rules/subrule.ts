@@ -10,12 +10,15 @@ export class Subrule extends BaseRule {
     super(parser, options, value)
   }
 
-  public resolve() {
-    let value = this.value
+  public resolve(value) {
     let fun = 'SUBRULE'
     this.log('subrule', value)
-    let _rule = (typeof value === 'string') ? this.findRule(value) : value
-    let name = (typeof value === 'string') ? value : value.toString()
+    let ruleRef = this.resolveRuleRef(value)
+    if (!ruleRef) {
+      throw new Error(`ruleRef could not be resolved for: ${value}`)
+    }
+    let name = (typeof value === 'string') ? ruleRef : ruleRef.toString()
+    this.log('subrule', { ruleRef, name })
 
     let repeatCount = 0
     // auto-detect reuse of subrule!
@@ -25,8 +28,8 @@ export class Subrule extends BaseRule {
       repeatCount++
     }
     this.usedRules[fun] = true
-    let code = `$.${fun}(` + _rule + ')'
-    let rule = () => this.$[fun](rule)
+    let code = `$.${fun}(` + name + ')'
+    let rule = () => this.$[fun](ruleRef)
 
     let type = ProdType.REF
     let node = {

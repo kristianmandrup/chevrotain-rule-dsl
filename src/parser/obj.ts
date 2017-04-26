@@ -1,5 +1,5 @@
 import { BaseParser } from './base'
-import { IResult } from '../common/result'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
 
 export class ObjParser extends BaseParser {
@@ -23,7 +23,9 @@ export class ObjParser extends BaseParser {
 
   protected resolveRule(rule, options): IResult {
     let resolver = this.resolverFor(this.findResolverName(rule, options))
-    return resolver ? resolver(rule) : undefined
+    if (typeof resolver === 'function') return resolver(rule) 
+    console.warn('Not a resolver', {rule, options}, resolver)
+    return undefined
   }
 
   protected resolveKey(rule, options?): IResult {

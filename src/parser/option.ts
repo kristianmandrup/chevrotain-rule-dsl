@@ -1,5 +1,5 @@
 import { BaseParser } from './base'
-import { IResult } from '../common/result'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
 
 export class OptionParser extends BaseParser {
@@ -12,7 +12,7 @@ export class OptionParser extends BaseParser {
     let matches = regExp.exec(rule)
     if (matches && matches.length > 0) {
       let match = matches[1]
-      return this.rules.option(match)
+      return this.funs.option(match)
     }
   }
 }

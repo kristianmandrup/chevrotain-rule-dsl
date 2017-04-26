@@ -1,8 +1,14 @@
 import { BaseParser } from './base'
-import { IResult } from '../common/result'
+import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
-
 export class SpacedParser extends BaseParser {
+  parserKeys = [
+    'list'
+  ]
+  ruleKeys = [
+    'or'
+  ]
+
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
@@ -22,11 +28,11 @@ export class SpacedParser extends BaseParser {
         let splitExp = or ? orExp : pipeExp
         this.log('or rule: split', splitExp)
         let alternatives = rule.split(splitExp).map(alt => alt.trim())
-        return this.rules.or(alternatives)
+        return this.funs.or(alternatives)
       } else {
         this.log('split rules by space', options)
         let list = rule.split(/\s+/).map(item => item.trim())
-        return this.parser.list(list, options)
+        return this.funs.list(list, options)
       }
     }
   }

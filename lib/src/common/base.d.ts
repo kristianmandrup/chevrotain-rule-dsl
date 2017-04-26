@@ -8,6 +8,7 @@ export declare class Base extends Basic implements IConfig {
     usedRules: {};
     _registry: {};
     constructor(parser: any, options?: IParsable, value?: any);
+    protected resolveRuleRef(ref: any): any;
     protected findRule(name: any): any;
     readonly registry: {};
     protected register(name: any, rule: any): void;

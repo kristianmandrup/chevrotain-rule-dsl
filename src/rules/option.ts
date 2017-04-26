@@ -13,7 +13,7 @@ export class Option extends BaseRule {
     let value = this.value
     this.log('option', value)
     let _rule = (typeof value === 'string') ? this.findRule[value] : value
-    let parsed = this.parser.parse(_rule)
+    let parsed = this.funs.parse(_rule)
     if (typeof parsed.rule !== 'function') {
       throw new Error(`option must be function, was ${typeof parsed.rule}`)
     }

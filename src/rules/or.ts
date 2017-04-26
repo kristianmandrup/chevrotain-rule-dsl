@@ -13,7 +13,7 @@ export class Or extends BaseRule {
 
   public resolve(alternatives, options?): IResult {
     this.log('or', alternatives)
-    let parsed = this.parser.parse(alternatives, { parent: 'or' })
+    let parsed = this.funs.parse(alternatives, { parent: 'or' })
     let code = '$.OR([' + parsed.code + '])'
     let children = alternatives
     let type = ProdType.OR
