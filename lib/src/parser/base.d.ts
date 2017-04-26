@@ -10,7 +10,7 @@ export declare class BaseParser extends Base implements IConfig {
     parsers?: any;
     rules?: any;
     funs: any;
-    constructor(parser: any, rules: any, options: any);
+    constructor(parser: any, options: any);
     protected unknown(rule: any, options?: any): void;
     protected error(msg: any): void;
     protected methodize(): void;

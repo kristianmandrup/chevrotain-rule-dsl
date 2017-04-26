@@ -3,6 +3,11 @@ import { IResult } from '../common/interfaces'
 import * as util from '../common/util'
 
 export class ObjParser extends BaseParser {
+  ruleKeys = [
+    'repeat',
+    'alt'
+  ]
+
   constructor(parser, rules, options) {
     super(parser, rules, options)
   }
@@ -13,18 +18,22 @@ export class ObjParser extends BaseParser {
   }
  
   protected resolverFor(key) {
-    return this.rules[key]
+    console.log('resolverFor', this.rules.funs, key)
+    return this.rules.funs[key]
   }
 
   protected findResolverName(rule, options) {
+    console.log('findResolver', rule)
     if (util.isAlt(options)) return 'alt'
     if (util.isRepeat(rule)) return 'repeat'
   }
 
   protected resolveRule(rule, options): IResult {
-    let resolver = this.resolverFor(this.findResolverName(rule, options))
+    let name = this.findResolverName(rule, options)
+    console.log('name', name)
+    let resolver = this.resolverFor(name)
     if (typeof resolver === 'function') return resolver(rule) 
-    console.warn('Not a resolver', {rule, options}, resolver)
+    console.warn('Not a resolver', {rule, options}, typeof resolver)
     return undefined
   }
 

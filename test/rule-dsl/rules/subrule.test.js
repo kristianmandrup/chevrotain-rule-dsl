@@ -17,7 +17,12 @@ test('SUBRULE', t => {
 
     let value = 'elseClause'
     let result = rule.resolve(value)
-    let expected = /{$.SUBRULE: \(\) => {\s+elseClause\s+}}/
+    let expected = [
+        /{$.SUBRULE: \(\)/,
+        /{\s+elseClause\s+}/
+    ]
     console.log('result', result)
-    t.regex(result.code, expected)
+    expected.map(exp => {
+        t.regex(result.code, exp)
+    })
 })

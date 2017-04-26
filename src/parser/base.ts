@@ -21,8 +21,8 @@ export class BaseParser extends Base implements IConfig {
     rules?: any // IRules
     funs: any
 
-    constructor(parser, rules, options) {
-        super(parser, rules, options)
+    constructor(parser, options) {
+        super(parser, options)
     }
 
     protected unknown(rule, options?) {
